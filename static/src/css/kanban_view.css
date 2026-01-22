@@ -1,0 +1,83 @@
+/* Weekly Report Kanban View Styling */
+.o_kanban_view .oe_kanban_card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    margin-bottom: 12px;
+}
+
+.o_kanban_view .oe_kanban_card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+
+.o_kanban_view .o_kanban_record_title {
+    color: white !important;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.o_kanban_view .o_kanban_record_body {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.o_kanban_view .o_kanban_record_body .mb4 {
+    margin-bottom: 8px;
+}
+
+.o_kanban_view .o_kanban_record_body .mb8 {
+    margin-bottom: 12px;
+}
+
+.o_kanban_view .mr4 {
+    margin-right: 6px;
+}
+
+.o_kanban_view .mr8 {
+    margin-right: 8px;
+}
+
+.o_kanban_view .badge-success {
+    background-color: #28a745 !important;
+    color: white !important;
+}
+
+.o_kanban_view .badge-primary {
+    background-color: #007bff !important;
+    color: white !important;
+}
+
+.o_kanban_view .badge-danger {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+.o_kanban_view .badge-secondary {
+    background-color: #6c757d !important;
+    color: white !important;
+}
+
+.o_kanban_view .badge {
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+}
+
+.o_kanban_view .ml8 {
+    margin-left: 8px;
+}
+
+.o_kanban_view .o_kanban_record_body .mb8 small {
+    color: white !important;
+}
+
+.o_kanban_view .o_kanban_record_bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid #e9ecef;
+}

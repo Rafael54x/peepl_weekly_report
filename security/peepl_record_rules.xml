@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Weekly Report Record Rules -->
+    <record id="rule_weekly_report_staff" model="ir.rule">
+        <field name="name">Staff: Own Reports Only</field>
+        <field name="model_id" ref="model_peepl_weekly_report"/>
+        <field name="domain_force">[('pic_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_peepl_staff'))]"/>
+    </record>
+
+    <record id="rule_weekly_report_manager" model="ir.rule">
+        <field name="name">Manager: Department Reports</field>
+        <field name="model_id" ref="model_peepl_weekly_report"/>
+        <field name="domain_force">[('pic_id', 'in', [a.user_id.id for a in user.env['peepl.user.assignment'].search([('department_id', 'in', [ua.department_id.id for ua in user.env['peepl.user.assignment'].search([('user_id', '=', user.id)])])])])]</field>
+        <field name="groups" eval="[(4, ref('group_peepl_manager'))]"/>
+    </record>
+
+    <record id="rule_weekly_report_bod" model="ir.rule">
+        <field name="name">BOD: All Reports</field>
+        <field name="model_id" ref="model_peepl_weekly_report"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_peepl_bod'))]"/>
+    </record>
+
+    <!-- PIC Overview Record Rules -->
+    <record id="rule_pic_overview_staff" model="ir.rule">
+        <field name="name">Staff: Own Overview Only</field>
+        <field name="model_id" ref="model_peepl_pic_overview"/>
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_peepl_staff'))]"/>
+    </record>
+
+    <record id="rule_pic_overview_manager" model="ir.rule">
+        <field name="name">Manager: Department Overview</field>
+        <field name="model_id" ref="model_peepl_pic_overview"/>
+        <field name="domain_force">[('user_id', 'in', [a.user_id.id for a in user.env['peepl.user.assignment'].search([('department_id', 'in', [ua.department_id.id for ua in user.env['peepl.user.assignment'].search([('user_id', '=', user.id)])])])])]</field>
+        <field name="groups" eval="[(4, ref('group_peepl_manager'))]"/>
+    </record>
+
+    <record id="rule_pic_overview_bod" model="ir.rule">
+        <field name="name">BOD: All Overview</field>
+        <field name="model_id" ref="model_peepl_pic_overview"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_peepl_bod'))]"/>
+    </record>
+</odoo>

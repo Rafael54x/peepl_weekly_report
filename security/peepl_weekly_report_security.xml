@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="group_peepl_staff" model="res.groups">
+        <field name="name">Peepl Weekly Report: Staff</field>
+        <field name="comment">Staff level access for Peepl Weekly Report</field>
+    </record>
+
+    <record id="group_peepl_manager" model="res.groups">
+        <field name="name">Peepl Weekly Report: Manager</field>
+        <field name="comment">Manager level access for Peepl Weekly Report</field>
+        <field name="implied_ids" eval="[(4, ref('group_peepl_staff'))]"/>
+    </record>
+
+    <record id="group_peepl_bod" model="res.groups">
+        <field name="name">Peepl Weekly Report: BOD</field>
+        <field name="comment">BOD level access for Peepl Weekly Report</field>
+        <field name="implied_ids" eval="[(4, ref('group_peepl_manager'))]"/>
+    </record>
+</odoo>

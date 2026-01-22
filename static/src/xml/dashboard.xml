@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="peepl_weekly_report.Dashboard" owl="1">
+        <div class="peepl-dashboard">
+            <!-- Mobile Navbar -->
+            <div class="mobile-navbar d-md-none">
+                <h3>Peepl</h3>
+                <button class="mobile-burger" t-att-class="state.sidebarOpen ? 'active' : ''" t-on-click="toggleSidebar">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+            
+            <!-- Mobile Overlay -->
+            <div class="mobile-overlay d-md-none" t-att-class="state.sidebarOpen ? 'show' : ''" t-on-click="toggleSidebar"></div>
+            
+            <!-- Sidebar -->
+            <div t-att-class="'sidebar d-md-flex ' + (state.sidebarOpen ? 'open' : 'closed')">
+                <div class="sidebar-header d-none d-md-block">
+                    <h3>Peepl - Weekly Report</h3>
+                    <button class="btn-toggle" t-on-click="toggleSidebar">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+                <div class="sidebar-menu">
+                    <button class="menu-item" t-att-class="state.activeView === 'dashboard' ? 'active' : ''" t-on-click="() => this.setView('dashboard')">
+                        <i class="fa fa-tachometer"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <button class="menu-item" t-att-class="state.activeView === 'details' ? 'active' : ''" t-on-click="() => this.setView('details')">
+                        <i class="fa fa-list-alt"></i>
+                        <span>Details</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <t t-if="state.activeView === 'dashboard'">
+                    <div class="dashboard-view">
+                        <h2>Dashboard Overview</h2>
+                        
+                        <!-- Department Info for Manager -->
+                        <div class="alert alert-info" t-if="state.departments.length === 1">
+                            <strong>Department: <t t-esc="state.departments[0].name"/></strong> - You are viewing your team's data
+                        </div>
+                        
+                        <!-- PIC Overview Table -->
+                        <div class="card mb-4">
+                            <div class="card-header">PIC Overview</div>
+                            <div class="card-body">
+                                <!-- Search and Filter Controls -->
+                                <div class="table-controls">
+                                    <div class="left-filters">
+                                        <input type="text" 
+                                               class="form-control" 
+                                               placeholder="Search by name..." 
+                                               t-on-input="onSearchChange"
+                                               t-model="state.searchQuery"/>
+                                        <select class="form-select" t-on-change="onDepartmentFilter">
+                                            <option value="">All Departments</option>
+                                            <t t-foreach="uniqueDepartments" t-as="dept" t-key="dept">
+                                                <option t-att-value="dept"><t t-esc="dept"/></option>
+                                            </t>
+                                        </select>
+                                        <select class="form-select" t-on-change="onRoleFilter">
+                                            <option value="">All Positions</option>
+                                            <t t-foreach="uniqueRoles" t-as="role" t-key="role">
+                                                <option t-att-value="role"><t t-esc="role"/></option>
+                                            </t>
+                                        </select>
+                                        <button class="btn btn-sm btn-danger" t-on-click="resetFilters" t-if="hasActiveFilters">
+                                            <i class="fa fa-times"></i> Reset Filters
+                                        </button>
+                                    </div>
+                                    <div class="right-filter">
+                                        <select class="form-select" t-on-change="changeItemsPerPage">
+                                            <option value="10">10</option>
+                                            <option value="20">20</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Total Stats Summary (BOD/Manager only) -->
+                                <div class="total-stats-summary" t-if="state.departments.length > 0">
+                                    <div class="row g-2 justify-content-center">
+                                        <div class="col">
+                                            <div class="stat-box total">
+                                                <div class="stat-number"><t t-esc="state.totalStats.total_tasks"/></div>
+                                                <div class="stat-label">Total Tasks</div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="stat-box completed" t-on-click="() => this.filterByStatus('completed')">
+                                                <div class="stat-number"><t t-esc="state.totalStats.completed"/></div>
+                                                <div class="stat-label">Completed</div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="stat-box in-progress" t-on-click="() => this.filterByStatus('in_progress')">
+                                                <div class="stat-number"><t t-esc="state.totalStats.in_progress"/></div>
+                                                <div class="stat-label">In Progress</div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="stat-box not-started" t-on-click="() => this.filterByStatus('not_started')">
+                                                <div class="stat-number"><t t-esc="state.totalStats.not_started"/></div>
+                                                <div class="stat-label">Not Started</div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="stat-box delayed" t-on-click="() => this.filterByStatus('delayed')">
+                                                <div class="stat-number"><t t-esc="state.totalStats.delayed"/></div>
+                                                <div class="stat-label">Delayed</div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="stat-box plan" t-on-click="() => this.filterByStatus('plan')">
+                                                <div class="stat-number"><t t-esc="state.totalStats.plan"/></div>
+                                                <div class="stat-label">Plan</div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="stat-box overdue" t-on-click="() => this.filterByStatus('overdue')">
+                                                <div class="stat-number"><t t-esc="state.totalStats.overdue"/></div>
+                                                <div class="stat-label">Overdue</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-left sortable" t-on-click="() => this.sortData('user_id')">
+                                                    User 
+                                                    <i t-att-class="'fa fa-sort' + (state.sortField === 'user_id' ? (state.sortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                </th>
+                                                <th class="sortable" t-on-click="() => this.sortData('department_name')">
+                                                    Department 
+                                                    <i t-att-class="'fa fa-sort' + (state.sortField === 'department_name' ? (state.sortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                </th>
+                                                <th class="sortable" t-on-click="() => this.sortData('position')">
+                                                    Positions 
+                                                    <i t-att-class="'fa fa-sort' + (state.sortField === 'position' ? (state.sortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                </th>
+                                                <th class="sortable" t-on-click="() => this.sortData('total_tasks')">
+                                                    Total 
+                                                    <i t-att-class="'fa fa-sort' + (state.sortField === 'total_tasks' ? (state.sortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                </th>
+                                                <th class="sortable" t-on-click="() => this.sortData('completed')">
+                                                    Completed 
+                                                    <i t-att-class="'fa fa-sort' + (state.sortField === 'completed' ? (state.sortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                </th>
+                                                <th class="sortable" t-on-click="() => this.sortData('in_progress')">
+                                                    In Progress 
+                                                    <i t-att-class="'fa fa-sort' + (state.sortField === 'in_progress' ? (state.sortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                </th>
+                                                <th class="sortable" t-on-click="() => this.sortData('not_started')">
+                                                    Not Started 
+                                                    <i t-att-class="'fa fa-sort' + (state.sortField === 'not_started' ? (state.sortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                </th>
+                                                <th class="sortable" t-on-click="() => this.sortData('delayed')">
+                                                    Delayed 
+                                                    <i t-att-class="'fa fa-sort' + (state.sortField === 'delayed' ? (state.sortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                </th>
+                                                <th class="sortable" t-on-click="() => this.sortData('plan')">
+                                                    Plan 
+                                                    <i t-att-class="'fa fa-sort' + (state.sortField === 'plan' ? (state.sortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                </th>
+                                                <th class="sortable" t-on-click="() => this.sortData('overdue')">
+                                                    Overdue 
+                                                    <i t-att-class="'fa fa-sort' + (state.sortField === 'overdue' ? (state.sortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="paginatedData" t-as="pic" t-key="pic.id">
+                                                <tr>
+                                                    <td><t t-esc="pic.user_id[1]"/></td>
+                                                    <td><t t-esc="pic.department_name"/></td>
+                                                    <td><span class="badge badge-role"><t t-esc="pic.position || 'No Position'"/></span></td>
+                                                    <td><span class="badge badge-number"><t t-esc="pic.total_tasks"/></span></td>
+                                                    <td><span class="badge badge-number"><t t-esc="pic.completed"/></span></td>
+                                                    <td><span class="badge badge-number"><t t-esc="pic.in_progress"/></span></td>
+                                                    <td><span class="badge badge-number"><t t-esc="pic.not_started"/></span></td>
+                                                    <td><span class="badge badge-number"><t t-esc="pic.delayed"/></span></td>
+                                                    <td><span class="badge badge-number"><t t-esc="pic.plan"/></span></td>
+                                                    <td><span class="badge badge-number"><t t-esc="pic.overdue"/></span></td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Pagination -->
+                                <div class="pagination-controls">
+                                    <div class="pagination-info">
+                                        Showing <t t-esc="(state.currentPage - 1) * state.itemsPerPage + 1"/> to 
+                                        <t t-esc="Math.min(state.currentPage * state.itemsPerPage, state.filteredPicData.length)"/> of 
+                                        <t t-esc="state.filteredPicData.length"/> entries
+                                    </div>
+                                    <div class="pagination-buttons">
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                t-on-click="prevPage" 
+                                                t-att-disabled="state.currentPage === 1">Previous</button>
+                                        <span class="page-number">Page <t t-esc="state.currentPage"/> of <t t-esc="totalPages"/></span>
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                t-on-click="nextPage" 
+                                                t-att-disabled="state.currentPage === totalPages">Next</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chart Section - Only show departments with data -->
+                        <div class="charts-container" t-if="state.departments.length > 0">
+                            <t t-foreach="state.departments" t-as="dept" t-key="dept.id">
+                                <div class="card" t-if="state.chartData[dept.id] and state.chartData[dept.id].users.length > 0">
+                                    <div class="card-header"><t t-esc="dept.name"/> Department - Team Overview</div>
+                                    <div class="card-body" style="height: 350px;">
+                                        <canvas t-att-id="'chart_' + dept.id"></canvas>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+
+                <t t-if="state.activeView === 'details'">
+                    <div class="details-view">
+                        <h2>Department Details</h2>
+                        <div class="row" t-if="!state.deptDetailData">
+                            <t t-foreach="state.departments" t-as="dept" t-key="dept.id">
+                                <div class="col-md-6 mb-3" t-if="state.picData.filter(pic => pic.department_name === dept.name).length > 0">
+                                    <div class="card dept-card">
+                                        <div class="card-header">
+                                            <h5 class="dept-title"><t t-esc="dept.name"/></h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="dept-info">
+                                                <p class="dept-description">Department information and statistics will be displayed here.</p>
+                                                <div class="dept-stats">
+                                                    <div class="stat-item">
+                                                        <span class="stat-label">Total Users:</span>
+                                                        <span class="stat-value"><t t-esc="dept.total_users || 0"/></span>
+                                                    </div>
+                                                    <div class="stat-item">
+                                                        <span class="stat-label">Total Tasks:</span>
+                                                        <span class="stat-value"><t t-esc="dept.total_tasks || 0"/></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-actions">
+                                                <button class="btn btn-details" t-on-click="() => this.showDeptDetails(dept)">
+                                                    Details <i class="fa fa-chevron-right"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                        
+                        <!-- Department Detail Modal/Section -->
+                        <div t-if="state.deptDetailData" class="dept-detail-section">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4><t t-esc="state.deptDetailData.department.name"/> - Department Statistics</h4>
+                                    <button class="btn btn-sm btn-secondary" t-on-click="() => this.closeDeptDetails()">
+                                        <i class="fa fa-arrow-left"></i> Back
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Department Summary -->
+                                    <div class="row mb-4">
+                                        <div class="col-md-3">
+                                            <div class="stat-card">
+                                                <div class="stat-number"><t t-esc="state.deptDetailData.users.length"/></div>
+                                                <div class="stat-label">Total Users</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="stat-card">
+                                                <div class="stat-number"><t t-esc="state.deptDetailData.reports.length"/></div>
+                                                <div class="stat-label">Total Tasks</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="stat-card">
+                                                <div class="stat-number"><t t-esc="state.deptDetailData.reports.filter(r => r.status === 'completed').length"/></div>
+                                                <div class="stat-label">Completed</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="stat-card">
+                                                <div class="stat-number"><t t-esc="state.deptDetailData.reports.filter(r => r.status === 'in_progress').length"/></div>
+                                                <div class="stat-label">In Progress</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Tasks Table -->
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th class="sortable" t-on-click="() => this.sortDeptData('name')">
+                                                        No 
+                                                        <i t-att-class="'fa fa-sort' + (state.deptSortField === 'name' ? (state.deptSortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                    </th>
+                                                    <th class="sortable" t-on-click="() => this.sortDeptData('pic_id')">
+                                                        PIC 
+                                                        <i t-att-class="'fa fa-sort' + (state.deptSortField === 'pic_id' ? (state.deptSortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                    </th>
+                                                    <th class="sortable" t-on-click="() => this.sortDeptData('client_id')">
+                                                        Client 
+                                                        <i t-att-class="'fa fa-sort' + (state.deptSortField === 'client_id' ? (state.deptSortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                    </th>
+                                                    <th class="sortable" t-on-click="() => this.sortDeptData('project_task')">
+                                                        Project/Task 
+                                                        <i t-att-class="'fa fa-sort' + (state.deptSortField === 'project_task' ? (state.deptSortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                    </th>
+                                                    <th class="sortable" t-on-click="() => this.sortDeptData('deadline')">
+                                                        Deadline 
+                                                        <i t-att-class="'fa fa-sort' + (state.deptSortField === 'deadline' ? (state.deptSortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                    </th>
+                                                    <th class="sortable" t-on-click="() => this.sortDeptData('status')">
+                                                        Status 
+                                                        <i t-att-class="'fa fa-sort' + (state.deptSortField === 'status' ? (state.deptSortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                    </th>
+                                                    <th class="sortable" t-on-click="() => this.sortDeptData('progress')">
+                                                        Progress 
+                                                        <i t-att-class="'fa fa-sort' + (state.deptSortField === 'progress' ? (state.deptSortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                    </th>
+                                                    <th>Notes</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="state.deptDetailData.reports" t-as="report" t-key="report.id">
+                                                    <tr>
+                                                        <td><t t-esc="report.name"/></td>
+                                                        <td><t t-esc="report.pic_id[1]"/></td>
+                                                        <td><t t-esc="report.client_id ? report.client_id[1] : '-'"/></td>
+                                                        <td><t t-esc="report.project_task"/></td>
+                                                        <td><t t-esc="report.deadline || '-'"/></td>
+                                                        <td>
+                                                            <span t-att-class="'badge status-' + report.status">
+                                                                <t t-esc="report.status.replace('_', ' ').toUpperCase()"/>
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <div class="progress-container">
+                                                                <div class="progress-bar" t-att-style="'width: ' + report.progress + '%'"></div>
+                                                                <span class="progress-text"><t t-esc="report.progress"/>%</span>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="notes-cell">
+                                                                <t t-if="report.notes_text and report.notes_text.trim()" t-esc="report.notes_text"/>
+                                                                <span t-if="!report.notes_text or !report.notes_text.trim()" class="text-muted">-</span>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+</templates>

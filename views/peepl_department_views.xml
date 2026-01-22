@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_peepl_department_tree" model="ir.ui.view">
+        <field name="name">peepl.department.tree</field>
+        <field name="model">peepl.department</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_peepl_department_form" model="ir.ui.view">
+        <field name="name">peepl.department.form</field>
+        <field name="model">peepl.department</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="code"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_peepl_department" model="ir.actions.act_window">
+        <field name="name">Departments</field>
+        <field name="res_model">peepl.department</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_peepl_department"
+              name="Departments"
+              parent="menu_peepl_weekly_report_configuration"
+              action="action_peepl_department"
+              groups="peepl_weekly_report.group_peepl_manager,peepl_weekly_report.group_peepl_bod"
+              sequence="5"/>
+</odoo>

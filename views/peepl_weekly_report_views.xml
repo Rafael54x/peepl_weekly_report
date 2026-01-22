@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_peepl_weekly_report_kanban" model="ir.ui.view">
+        <field name="name">peepl.weekly.report.kanban</field>
+        <field name="model">peepl.weekly.report</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="status" class="o_kanban_small_column">
+                <field name="name"/>
+                <field name="pic_id"/>
+                <field name="client_id"/>
+                <field name="project_task"/>
+                <field name="deadline"/>
+                <field name="status"/>
+                <field name="progress"/>
+                <field name="department_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top mb8">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <i class="fa fa-tasks text-muted mr4"></i>
+                                            <field name="name"/>: <field name="project_task"/>
+                                        </strong>
+                                    </div>
+                                    <div class="o_dropdown_kanban dropdown">
+                                        <a class="dropdown-toggle o-no-caret btn" data-bs-toggle="dropdown" href="#" role="button" aria-label="Dropdown menu" title="Dropdown menu">
+                                            <span class="fa fa-ellipsis-v"></span>
+                                        </a>
+                                        <div class="dropdown-menu" role="menu">
+                                            <a type="delete" class="dropdown-item">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="o_kanban_record_body">
+                                    <div class="mb4">
+                                        <i class="fa fa-user text-primary mr8"></i>
+                                        <strong>PIC:</strong> <field name="pic_id"/>
+                                        <span class="text-muted ml8" t-if="record.department_id.value">
+                                            (<field name="department_id"/>)
+                                        </span>
+                                    </div>
+                                    <div class="mb4" t-if="record.client_id.value">
+                                        <i class="fa fa-building text-info mr8"></i>
+                                        <strong>Client:</strong> <field name="client_id"/>
+                                    </div>
+                                    <div class="mb4" t-if="record.deadline.value">
+                                        <i class="fa fa-calendar text-warning mr8"></i>
+                                        <strong>Deadline:</strong> <field name="deadline"/>
+                                    </div>
+                                    <div class="mb8" t-if="record.notes.value">
+                                        <strong>Notes:</strong>
+                                        <small class="text-muted"><field name="notes" widget="html"/></small>
+                                    </div>
+                                </div>
+                                
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left">
+                                        <div class="o_kanban_inline_block">
+                                            <field name="progress" widget="progressbar" title="Progress"/>
+                                        </div>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <span class="badge" t-att-class="'badge-' + (record.status.raw_value === 'completed' ? 'success' : record.status.raw_value === 'overdue' ? 'danger' : record.status.raw_value === 'in_progress' ? 'primary' : 'secondary')">
+                                            <t t-esc="record.status.value"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_peepl_weekly_report_tree" model="ir.ui.view">
+        <field name="name">peepl.weekly.report.tree</field>
+        <field name="model">peepl.weekly.report</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" string="No" width="40px" class="text-center"/>
+                <field name="pic_id"/>
+                <field name="department_id" optional="hide"/>
+                <field name="client_id"/>
+                <field name="request_form"/>
+                <field name="project_task" width="250px"/>
+                <field name="deadline"/>
+                <field name="status"/>
+                <field name="progress" widget="progressbar" width="100px"/>
+                <field name="notes" optional="show" widget="html"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_peepl_weekly_report_form" model="ir.ui.view">
+        <field name="name">peepl.weekly.report.form</field>
+        <field name="model">peepl.weekly.report</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button string="Save" class="btn-primary" type="object" name="action_save_close"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="project_task" string="Project Name"/>
+                        <h1>
+                            <field name="project_task" placeholder="e.g. Website Development"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Task Information">
+                            <field name="name" readonly="1"/>
+                            <field name="allowed_user_ids" invisible="1"/>
+                            <field name="pic_id" widget="many2one_avatar_user" domain="[('id', 'in', allowed_user_ids)]"/>
+                            <field name="department_id" readonly="1"/>
+                            <field name="client_id"/>
+                            <field name="request_form"/>
+                        </group>
+                        <group string="Schedule &amp; Progress">
+                            <field name="status"/>
+                            <field name="deadline"/>
+                            <field name="progress" widget="integer" options="{'min': 0, 'max': 100}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Notes">
+                            <field name="notes" placeholder="Add notes here..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_peepl_pic_overview" model="ir.actions.act_window">
+        <field name="name">PIC Overview</field>
+        <field name="res_model">peepl.pic.overview</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="action_peepl_weekly_report" model="ir.actions.act_window">
+        <field name="name">Weekly Reports</field>
+        <field name="res_model">peepl.weekly.report</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{'allowed_user_ids': []}</field>
+    </record>
+
+    <menuitem id="menu_peepl_weekly_report_root"
+              name="Weekly Report"
+              groups="peepl_weekly_report.group_peepl_staff,peepl_weekly_report.group_peepl_manager,peepl_weekly_report.group_peepl_bod"
+              sequence="10"/>
+
+    <menuitem id="menu_peepl_weekly_report"
+              name="Weekly Reports"
+              parent="menu_peepl_weekly_report_root"
+              action="action_peepl_weekly_report"
+              groups="peepl_weekly_report.group_peepl_staff,peepl_weekly_report.group_peepl_manager,peepl_weekly_report.group_peepl_bod"
+              sequence="10"/>
+
+    <menuitem id="menu_peepl_pic_overview_main"
+              name="PIC Overview"
+              parent="menu_peepl_weekly_report_root"
+              action="action_peepl_pic_overview"
+              groups="peepl_weekly_report.group_peepl_staff,peepl_weekly_report.group_peepl_manager,peepl_weekly_report.group_peepl_bod"
+              sequence="15"/>
+</odoo>
