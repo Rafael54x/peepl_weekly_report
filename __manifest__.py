@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Peepl Report - Weekly Report',
-    'version': '19.0.1.0.2',
+    'version': '19.0.1.0.5',
     'category': 'report/Projects',
-    'summary': 'Weekly Report policy for assessment services',
+    'summary': 'Weekly Report',
     'description': """
 Peepl Report - Weekly Report
 ============================
@@ -24,30 +24,30 @@ Key Features:
     'author': 'Peepl',
     'website': 'https://peepl.tech',
     'license': 'LGPL-3',
-    'depends': ['base', 'web'],
+    'depends': ['base', 'web', 'hr'],
     'data': [
         'security/peepl_weekly_report_security.xml',
         'security/ir.model.access.csv',
         'security/peepl_record_rules.xml',
-        'data/peepl_position_data.xml',
         'data/peepl_cron_data.xml',
         'views/peepl_weekly_report_views.xml',
         'views/peepl_dashboard_views.xml',
         'views/peepl_pic_overview_views.xml',
         'views/res_config_settings_views.xml',
-        'views/peepl_department_views.xml',
-        'views/peepl_position_views.xml',
-        'views/peepl_client_views.xml',
         'views/peepl_user_assignment_views.xml',
+        'views/peepl_field_template_views.xml',
+        'data/peepl_field_template_demo.xml',
     ],
     'images': ['static/description/icon.png'],
     'assets': {
         'web.assets_backend': [
             'peepl_weekly_report/static/src/js/dashboard.js',
+            'peepl_weekly_report/static/src/js/field_template_reload.js',
             'peepl_weekly_report/static/src/css/dashboard.css',
             'peepl_weekly_report/static/src/css/list_view.css',
             'peepl_weekly_report/static/src/css/kanban_view.css',
             'peepl_weekly_report/static/src/css/pic_overview.css',
+            'peepl_weekly_report/static/src/css/field_template.css',
             'peepl_weekly_report/static/src/xml/dashboard.xml',
         ],
     },
@@ -55,6 +55,7 @@ Key Features:
     'installable': True,
     'auto_install': False,
     'application': False,
+    'pre_init_hook': None,
     'uninstall_hook': None,
     'external_dependencies': {
         'python': [],

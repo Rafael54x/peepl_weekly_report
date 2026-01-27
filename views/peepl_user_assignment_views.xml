@@ -21,7 +21,8 @@
             <form>
                 <sheet>
                     <group>
-                        <field name="user_id"/>
+                        <field name="allowed_user_ids" invisible="1"/>
+                        <field name="user_id" domain="[('id', 'in', allowed_user_ids)]"/>
                         <field name="position_id" string="Positions"/>
                         <field name="department_id"/>
                         <field name="assigned_by" readonly="1"/>

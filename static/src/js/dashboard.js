@@ -66,7 +66,7 @@ export class PeeplDashboard extends Component {
         // Check if user has BOD access by trying to load all departments
         try {
             const allDepts = await this.orm.searchRead(
-                "peepl.department",
+                "hr.department",
                 [["active", "=", true]],
                 ["name"]
             );
@@ -100,7 +100,7 @@ export class PeeplDashboard extends Component {
         
         // Load department
         this.state.departments = await this.orm.searchRead(
-            "peepl.department",
+            "hr.department",
             [["id", "=", departmentId]],
             ["name"]
         );
@@ -118,7 +118,7 @@ export class PeeplDashboard extends Component {
         
         // Load all departments (filtered by record rules)
         this.state.departments = await this.orm.searchRead(
-            "peepl.department",
+            "hr.department",
             [["active", "=", true]],
             ["name"]
         );

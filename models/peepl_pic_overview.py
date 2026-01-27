@@ -7,7 +7,7 @@ class PeeplPicOverview(models.Model):
     _description = 'PIC Overview'
 
     user_id = fields.Many2one('res.users', string='User', required=True)
-    department_id = fields.Many2one('peepl.department', string='Department')
+    department_id = fields.Many2one('hr.department', string='Department')
     position = fields.Char(string='Positions')
     total_tasks = fields.Integer(string='Total Tasks')
     completed = fields.Integer(string='Completed')
@@ -51,7 +51,7 @@ class PeeplPicOverview(models.Model):
             })
 
     def update_overview(self):
-        self._compute_user_stats()
+        self.update_all_stats()
         return {
             'type': 'ir.actions.client',
             'tag': 'reload',

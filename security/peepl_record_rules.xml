@@ -22,6 +22,62 @@
         <field name="groups" eval="[(4, ref('group_peepl_bod'))]"/>
     </record>
 
+    <!-- User Assignment (PIC Overview) Record Rules -->
+    <record id="rule_user_assignment_staff" model="ir.rule">
+        <field name="name">Staff: Own Assignment Only</field>
+        <field name="model_id" ref="model_peepl_user_assignment"/>
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_peepl_staff'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_user_assignment_manager" model="ir.rule">
+        <field name="name">Manager: Same Department Only</field>
+        <field name="model_id" ref="model_peepl_user_assignment"/>
+        <field name="domain_force">[('department_id', 'in', user.env['peepl.user.assignment'].sudo().search([('user_id', '=', user.id)]).mapped('department_id').ids)]</field>
+        <field name="groups" eval="[(4, ref('group_peepl_manager'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_user_assignment_bod" model="ir.rule">
+        <field name="name">BOD: All Assignments</field>
+        <field name="model_id" ref="model_peepl_user_assignment"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_peepl_bod'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- Field Template Record Rules -->
+    <record id="rule_field_template_staff" model="ir.rule">
+        <field name="name">Staff: Own Department Only</field>
+        <field name="model_id" ref="model_peepl_field_template"/>
+        <field name="domain_force">[('department_id', 'in', [a.department_id.id for a in user.env['peepl.user.assignment'].search([('user_id', '=', user.id), ('active', '=', True)])])]</field>
+        <field name="groups" eval="[(4, ref('group_peepl_staff'))]"/>
+    </record>
+
+    <record id="rule_field_template_manager" model="ir.rule">
+        <field name="name">Manager: Own Department Only</field>
+        <field name="model_id" ref="model_peepl_field_template"/>
+        <field name="domain_force">[('department_id', 'in', [a.department_id.id for a in user.env['peepl.user.assignment'].search([('user_id', '=', user.id), ('active', '=', True)])])]</field>
+        <field name="groups" eval="[(4, ref('group_peepl_manager'))]"/>
+    </record>
+
+    <record id="rule_field_template_bod" model="ir.rule">
+        <field name="name">BOD: All Templates</field>
+        <field name="model_id" ref="model_peepl_field_template"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_peepl_bod'))]"/>
+    </record>
+
     <!-- PIC Overview Record Rules -->
     <record id="rule_pic_overview_staff" model="ir.rule">
         <field name="name">Staff: Own Overview Only</field>
@@ -31,9 +87,9 @@
     </record>
 
     <record id="rule_pic_overview_manager" model="ir.rule">
-        <field name="name">Manager: Department Overview</field>
+        <field name="name">Manager: Same Department Only</field>
         <field name="model_id" ref="model_peepl_pic_overview"/>
-        <field name="domain_force">[('user_id', 'in', [a.user_id.id for a in user.env['peepl.user.assignment'].search([('department_id', 'in', [ua.department_id.id for ua in user.env['peepl.user.assignment'].search([('user_id', '=', user.id)])])])])]</field>
+        <field name="domain_force">[('department_id', 'in', user.env['peepl.user.assignment'].sudo().search([('user_id', '=', user.id)]).mapped('department_id').ids)]</field>
         <field name="groups" eval="[(4, ref('group_peepl_manager'))]"/>
     </record>
 
