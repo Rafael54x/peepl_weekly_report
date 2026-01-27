@@ -9,7 +9,6 @@
                 <field name="position_id" string="Positions"/>
                 <field name="department_id"/>
                 <field name="assigned_by"/>
-                <field name="active"/>
             </list>
         </field>
     </record>
@@ -26,7 +25,6 @@
                         <field name="position_id" string="Positions"/>
                         <field name="department_id"/>
                         <field name="assigned_by" readonly="1"/>
-                        <field name="active"/>
                     </group>
                 </sheet>
             </form>

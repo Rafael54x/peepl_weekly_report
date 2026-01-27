@@ -163,7 +163,9 @@ class PeeplWeeklyReport(models.Model):
 
     @api.onchange('status')
     def _onchange_status(self):
-        if self.deadline and self.deadline < date.today() and self.status != 'overdue' and self.status != 'completed':
+        if self.status == 'completed':
+            self.progress = 100
+        elif self.deadline and self.deadline < date.today() and self.status != 'overdue' and self.status != 'completed':
             self.status = 'overdue'
         # Prevent changing from overdue to other status except completed
         if self._origin.status == 'overdue' and self.status != 'overdue' and self.status != 'completed':
