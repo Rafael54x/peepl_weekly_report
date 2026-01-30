@@ -14,6 +14,5 @@
     <record id="group_peepl_bod" model="res.groups">
         <field name="name">Peepl Weekly Report: BOD</field>
         <field name="comment">BOD level access for Peepl Weekly Report</field>
-        <field name="implied_ids" eval="[(4, ref('group_peepl_manager'))]"/>
     </record>
 </odoo>

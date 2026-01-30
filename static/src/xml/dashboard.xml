@@ -67,7 +67,7 @@
                                             </t>
                                         </select>
                                         <select class="form-select" t-on-change="onRoleFilter">
-                                            <option value="">All Positions</option>
+                                            <option value="">All Employment Types</option>
                                             <t t-foreach="uniqueRoles" t-as="role" t-key="role">
                                                 <option t-att-value="role"><t t-esc="role"/></option>
                                             </t>
@@ -147,7 +147,7 @@
                                                     <i t-att-class="'fa fa-sort' + (state.sortField === 'department_name' ? (state.sortOrder === 'asc' ? '-up' : '-down') : '')"></i>
                                                 </th>
                                                 <th class="sortable" t-on-click="() => this.sortData('position')">
-                                                    Positions 
+                                                    Employment Types 
                                                     <i t-att-class="'fa fa-sort' + (state.sortField === 'position' ? (state.sortOrder === 'asc' ? '-up' : '-down') : '')"></i>
                                                 </th>
                                                 <th class="sortable" t-on-click="() => this.sortData('total_tasks')">

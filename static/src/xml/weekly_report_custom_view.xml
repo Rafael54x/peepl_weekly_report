@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="peepl_weekly_report.WeeklyReportCustomView" owl="1">
+        <div class="o_action_manager">
+            <div class="o_list_view o_view_controller o_action">
+                <!-- Control Panel -->
+                <div class="o_control_panel d-flex flex-column gap-3 px-3 pt-2 pb-3" data-command-category="actions">
+                    <div class="o_control_panel_main d-flex flex-wrap flex-lg-nowrap justify-content-between align-items-lg-start gap-2 gap-lg-3 flex-grow-1">
+                        <div class="o_control_panel_breadcrumbs d-flex align-items-center gap-1 order-0 h-lg-100">
+                            <div class="o_control_panel_main_buttons d-flex gap-1 d-empty-none d-print-none">
+                                <button type="button" class="btn btn-primary o_list_button_add" data-hotkey="c" t-on-click="() => this.createRecord()">
+                                    New
+                                </button>
+                            </div>
+                            <div class="o_breadcrumb d-flex gap-1 text-truncate">
+                                <div class="o_last_breadcrumb_item active d-flex fs-4 min-w-0 align-items-center">
+                                    <span class="min-w-0 text-truncate" t-esc="getDepartmentTitle()"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div class="o_control_panel_navigation d-flex flex-wrap flex-md-nowrap justify-content-end gap-1 gap-xl-3 order-1 order-lg-2 flex-grow-1">
+                            <div class="o_cp_pager text-nowrap" role="search">
+                                <nav class="o_pager d-flex gap-2 h-100" aria-label="Pager">
+                                    <span class="o_pager_counter align-self-center">
+                                        <span class="o_pager_value d-inline-block border-bottom border-transparent mb-n1">
+                                            <t t-esc="pagerStart"/>-<t t-esc="pagerEnd"/>
+                                        </span>
+                                        <span> / </span>
+                                        <span class="o_pager_limit"><t t-esc="state.totalRecords"/></span>
+                                    </span>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Content -->
+                <main class="o_content">
+                    <div t-if="state.loading" class="d-flex justify-content-center p-4">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    
+                    <div t-else="" class="o_list_renderer o_renderer table-responsive" tabindex="-1" style="max-height: 85vh; overflow-y: auto;">
+                        <table class="o_list_table table table-sm table-hover position-relative mb-0 o_list_table_ungrouped table-striped" style="table-layout: fixed;">
+                            <thead>
+                                <tr>
+                                    
+                                    <!-- No Column -->
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="display_number" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 60px;" t-on-click="(ev) => this.onSort('display_number')">
+                                        <div class="d-flex align-items-center">
+                                            <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1 o_list_number_th">No</span>
+                                            <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('display_number')}} opacity-0 opacity-100-hover"></i>
+                                        </div>
+                                    </th>
+                                    
+                                    <!-- PIC Column -->
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="pic_id" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 120px;" t-on-click="(ev) => this.onSort('pic_id')">
+                                        <div class="d-flex align-items-center">
+                                            <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1">PIC</span>
+                                            <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('pic_id')}} opacity-0 opacity-100-hover"></i>
+                                        </div>
+                                    </th>
+                                    
+                                    <!-- Client Column -->
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="client_id" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 120px;" t-on-click="(ev) => this.onSort('client_id')">
+                                        <div class="d-flex align-items-center">
+                                            <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1">Client</span>
+                                            <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('client_id')}} opacity-0 opacity-100-hover"></i>
+                                        </div>
+                                    </th>
+                                    
+                                    <!-- Request Form Column -->
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="request_form" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 100px;" t-on-click="(ev) => this.onSort('request_form')">
+                                        <div class="d-flex align-items-center">
+                                            <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1">Request Form</span>
+                                            <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('request_form')}} opacity-0 opacity-100-hover"></i>
+                                        </div>
+                                    </th>
+                                    
+                                    <!-- Project Task Column -->
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="project_task" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 250px;" t-on-click="(ev) => this.onSort('project_task')">
+                                        <div class="d-flex align-items-center">
+                                            <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1">Project / Task</span>
+                                            <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('project_task')}} opacity-0 opacity-100-hover"></i>
+                                        </div>
+                                    </th>
+                                    
+                                    <!-- Deadline Column -->
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="deadline" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto text-center" style="width: 100px;" t-on-click="(ev) => this.onSort('deadline')">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1">Deadline</span>
+                                            <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('deadline')}} opacity-0 opacity-100-hover"></i>
+                                        </div>
+                                    </th>
+                                    
+                                    <!-- Status Column -->
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="status" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto text-center" style="width: 100px;" t-on-click="(ev) => this.onSort('status')">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1">Status</span>
+                                            <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('status')}} opacity-0 opacity-100-hover"></i>
+                                        </div>
+                                    </th>
+                                    
+                                    <!-- Progress Column -->
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="progress" class="align-middle o_column_sortable position-relative cursor-pointer o_list_number_th o_progressbar_cell opacity-trigger-hover w-print-auto text-center" style="width: 120px;" t-on-click="(ev) => this.onSort('progress')">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1 o_list_number_th">Progress (%)</span>
+                                            <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('progress')}} opacity-0 opacity-100-hover"></i>
+                                        </div>
+                                    </th>
+                                    
+                                    <!-- Dynamic Fields -->
+                                    <t t-foreach="state.dynamicFields" t-as="field" t-key="field.name">
+                                        <th data-tooltip-delay="1000" tabindex="-1" t-att-data-name="field.name" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 150px;" t-on-click="(ev) => this.onSort(field.name)">
+                                            <div class="d-flex align-items-center">
+                                                <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1" t-esc="field.label"></span>
+                                                <i t-attf-class="o_list_sortable_icon fa {{getSortIcon(field.name)}} opacity-0 opacity-100-hover"></i>
+                                            </div>
+                                        </th>
+                                    </t>
+                                    
+                                    <!-- Notes Column -->
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="notes" class="align-middle o_column_sortable position-relative cursor-pointer o_html_cell opacity-trigger-hover w-print-auto" style="width: 200px;" t-on-click="(ev) => this.onSort('notes')">
+                                        <div class="d-flex align-items-center">
+                                            <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1">Notes</span>
+                                            <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('notes')}} opacity-0 opacity-100-hover"></i>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            
+                            <tbody class="ui-sortable">
+                                <t t-foreach="state.records" t-as="record" t-key="record.id">
+                                    <tr class="o_data_row" t-att-data-id="'datapoint_' + record.id" t-on-click="() => this.openRecord(record.id)">
+                                        
+                                        <!-- Display Number -->
+                                        <td class="o_data_cell cursor-pointer o_field_cell text-center o_list_number o_readonly_modifier" data-tooltip-delay="1000" tabindex="-1" name="display_number" t-esc="record.display_number"></td>
+                                        
+                                        <!-- PIC -->
+                                        <td class="o_data_cell cursor-pointer o_field_cell o_list_many2one o_required_modifier" data-tooltip-delay="1000" tabindex="-1" name="pic_id" t-att-data-tooltip="record.pic_id and record.pic_id[1]" t-esc="record.pic_id and record.pic_id[1]"></td>
+                                        
+                                        <!-- Client -->
+                                        <td class="o_data_cell cursor-pointer o_field_cell o_list_many2one o_required_modifier" data-tooltip-delay="1000" tabindex="-1" name="client_id" t-att-data-tooltip="record.client_id and record.client_id[1]" t-esc="record.client_id and record.client_id[1]"></td>
+                                        
+                                        <!-- Request Form -->
+                                        <td class="o_data_cell cursor-pointer o_field_cell o_list_char" data-tooltip-delay="1000" tabindex="-1" name="request_form" t-att-data-tooltip="record.request_form || ''" t-esc="record.request_form || ''"></td>
+                                        
+                                        <!-- Project Task -->
+                                        <td class="o_data_cell cursor-pointer o_field_cell o_list_char o_required_modifier" data-tooltip-delay="1000" tabindex="-1" name="project_task" t-att-data-tooltip="record.project_task || ''" t-esc="record.project_task || ''"></td>
+                                        
+                                        <!-- Deadline -->
+                                        <td class="o_data_cell cursor-pointer o_field_cell text-center" data-tooltip-delay="1000" tabindex="-1" name="deadline" t-esc="formatDate(record.deadline)"></td>
+                                        
+                                        <!-- Status -->
+                                        <td class="o_data_cell cursor-pointer o_field_cell o_required_modifier text-center" data-tooltip-delay="1000" tabindex="-1" name="status" t-esc="getStatusLabel(record.status)"></td>
+                                        
+                                        <!-- Progress -->
+                                        <td class="o_data_cell cursor-pointer o_field_cell o_list_number o_progressbar_cell text-center" data-tooltip-delay="1000" tabindex="-1" name="progress" t-att-data-progress="record.progress">
+                                            <div class="js-progress-content"></div>
+                                        </td>
+                                        
+                                        <!-- Dynamic Fields -->
+                                        <t t-foreach="state.dynamicFields" t-as="field" t-key="field.name">
+                                            <td class="o_data_cell cursor-pointer o_field_cell o_list_char" data-tooltip-delay="1000" tabindex="-1" t-att-name="field.name" t-att-data-tooltip="record[field.name] || ''" t-esc="record[field.name] || ''"></td>
+                                        </t>
+                                        
+                                        <!-- Notes -->
+                                        <td class="o_data_cell cursor-pointer" data-tooltip-delay="1000" tabindex="-1" name="notes" t-att-data-notes="record.notes">
+                                            <div class="js-notes-content"></div>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </t>
+</templates>

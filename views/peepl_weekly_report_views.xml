@@ -157,12 +157,21 @@
               groups="peepl_weekly_report.group_peepl_staff,peepl_weekly_report.group_peepl_manager,peepl_weekly_report.group_peepl_bod"
               sequence="10"/>
 
+
+    <menuitem id="menu_peepl_departments_bod"
+              name="Department Reports"
+              parent="menu_peepl_weekly_report_root"
+              action="action_weekly_report_department"
+              groups="peepl_weekly_report.group_peepl_bod"
+              sequence="10"/>
+              
     <menuitem id="menu_peepl_weekly_report"
               name="Weekly Reports"
               parent="menu_peepl_weekly_report_root"
               action="action_peepl_weekly_report"
-              groups="peepl_weekly_report.group_peepl_staff,peepl_weekly_report.group_peepl_manager,peepl_weekly_report.group_peepl_bod"
-              sequence="10"/>
+              groups="peepl_weekly_report.group_peepl_staff,peepl_weekly_report.group_peepl_manager"
+              sequence="11"/>
+              
 
     <menuitem id="menu_peepl_pic_overview_main"
               name="PIC Overview"

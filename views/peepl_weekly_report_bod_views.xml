@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Kanban View -->
+        <record id="view_weekly_report_department_kanban" model="ir.ui.view">
+            <field name="name">peepl.weekly.report.department.kanban</field>
+            <field name="model">peepl.weekly.report.department</field>
+            <field name="arch" type="xml">
+                <kanban class="o_hr_department_kanban o_kanban_small_column" highlight_color="color" create="false" edit="false" delete="false">
+                    <field name="department_id"/>
+                    <field name="manager_id"/>
+                    <field name="company_id"/>
+                    <field name="color"/>
+                    <templates>
+                        <t t-name="menu">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <h5 role="menuitem" class="o_kanban_card_manage_title">
+                                            <span>Settings</span>
+                                        </h5>
+                                        <div role="menuitem">
+                                            <a name="action_open_configuration" type="object">Configuration</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                        <t t-name="card">
+                            <button class="btn btn-link p-0 w-100 text-start" name="action_open_reports" type="object" style="border: none; background: none;">
+                                <div class="oe_kanban_card">
+                                    <div class="fw-bold fs-4 d-block ms-2">
+                                        <field name="department_id"/>
+                                    </div>
+                                    <field name="manager_id" widget="many2one_avatar_employee" options="{'display_avatar_name': True}" readonly="1" class="text-muted ms-2"/>
+                                    <div class="small mt-1 ms-2" groups="base.group_multi_company">
+                                    </div>
+                                    <div class="row g-0 mt-3 mb-2 ms-2">
+                                        <div class="col-6">
+                                        </div>
+                                    </div>
+                                </div>
+                            </button>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <record id="view_weekly_report_department_form" model="ir.ui.view">
+            <field name="name">peepl.weekly.report.department.form</field>
+            <field name="model">peepl.weekly.report.department</field>
+            <field name="arch" type="xml">
+                <form string="Department Configuration">
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button class="oe_stat_button" name="action_open_reports" type="object" icon="fa-file-text-o">
+                                <field name="total_reports" string="Reports" widget="statinfo"/>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="department_id"/>
+                            </h1>
+                        </div>
+                        <group col="12">
+                            <group colspan="6">
+                                <field name="manager_id" widget="many2one_avatar_employee" readonly="1" string="Department Head"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Field Templates">
+                                <!-- Default Fields (Read Only) -->
+                                <separator string="Default Fields (Cannot be edited)"/>
+                                <div class="o_form_field_one2many">
+                                    <div class="o_list_view">
+                                        <table class="o_list_table table table-sm table-hover position-relative mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 32%;">Field Name</th>
+                                                    <th style="width: 25%;">Field Type</th>
+                                                    <th style="width: 30%;">Description</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr><td>No</td><td>Integer</td><td>Report number</td></tr>
+                                                <tr><td>PIC</td><td>Many2one</td><td>Person in Charge</td></tr>
+                                                <tr><td>Client</td><td>Many2one</td><td>Client/Partner</td></tr>
+                                                <tr><td>Request Form</td><td>Char</td><td>Request form reference</td></tr>
+                                                <tr><td>Project/Task</td><td>Char</td><td>Project or Task name</td></tr>
+                                                <tr><td>Deadline</td><td>Date</td><td>Task deadline</td></tr>
+                                                <tr><td>Status</td><td>Selection</td><td>Task status</td></tr>
+                                                <tr><td>Progress (%)</td><td>Integer</td><td>Progress percentage</td></tr>
+                                                <tr><td>Notes</td><td>Html</td><td>Additional notes</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <separator string="Custom Fields"/>
+                                <field name="field_template_ids" context="{'default_department_id': department_id}" domain="[('department_id', '=', department_id)]">
+                                    <list string="Custom Fields">
+                                        <field name="name"/>
+                                        <field name="field_type"/>
+                                        <field name="description"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="User Assignments">
+                                <field name="user_assignment_ids" context="{'default_department_id': department_id}" domain="[('department_id', '=', department_id)]">
+                                    <list editable="bottom">
+                                        <field name="user_id"/>
+                                        <field name="position_id" string="Employment Types"/>
+                                        <field name="assigned_by" readonly="1"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- List View -->
+        <record id="view_weekly_report_department_tree" model="ir.ui.view">
+            <field name="name">peepl.weekly.report.department.tree</field>
+            <field name="model">peepl.weekly.report.department</field>
+            <field name="arch" type="xml">
+                <list create="false" edit="false" delete="false" action="action_open_reports" type="object">
+                    <field name="department_id" width="350px"/>
+                    <field name="manager_id" widget="many2one_avatar_employee" string="Department Head" width="400px"/>
+                    <field name="total_reports"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Action -->
+        <record id="action_weekly_report_department" model="ir.actions.act_window">
+            <field name="name">Weekly Reports by Department</field>
+            <field name="res_model">peepl.weekly.report.department</field>
+            <field name="view_mode">kanban,list,form</field>
+        </record>
+
+        <!-- Menu -->
+        <record id="action_weekly_report_department" model="ir.actions.act_window">
+            <field name="name">Weekly Reports by Department</field>
+            <field name="res_model">peepl.weekly.report.department</field>
+            <field name="view_mode">kanban,list</field>
+        </record>
+
+        <!-- BOD Weekly Report List View -->
+        <record id="view_weekly_report_bod_list" model="ir.ui.view">
+            <field name="name">peepl.weekly.report.bod.list</field>
+            <field name="model">peepl.weekly.report</field>
+            <field name="arch" type="xml">
+                <list duplicate="false">
+                    <field name="display_number" string="No" width="40px" class="text-center"/>
+                    <field name="name" column_invisible="1"/>
+                    <field name="pic_id" optional="show"/>
+                    <field name="department_id" optional="hide"/>
+                    <field name="client_id" optional="show"/>
+                    <field name="request_form" optional="show"/>
+                    <field name="project_task" width="250px" optional="show"/>
+                    <field name="deadline" optional="show"/>
+                    <field name="status" optional="show"/>
+                    <field name="progress" widget="progressbar" width="100px" optional="show"/>
+                    <field name="notes" optional="show"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- BOD Weekly Report Form View -->
+        <record id="view_weekly_report_bod_form" model="ir.ui.view">
+            <field name="name">peepl.weekly.report.bod.form</field>
+            <field name="model">peepl.weekly.report</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button string="Save" class="btn-primary" type="object" name="action_save_close"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="project_task" string="Project Task"/>
+                            <h1>
+                                <field name="project_task" placeholder="e.g. Website Development" class="o_text_overflow"/>
+                            </h1>
+                        </div>
+                        
+                        <group>
+                            <group string="Task Details">
+                                <field name="name" readonly="1" string="Report No."/>
+                                <field name="allowed_pic_ids" invisible="1"/>
+                                <field name="pic_id" widget="many2one_avatar_user" domain="[('id', 'in', allowed_pic_ids)]" options="{'no_create': True}"/>
+                                <field name="department_id" readonly="1"/>
+                                <field name="client_id" options="{'no_create_edit': True}"/>
+                                <field name="request_form"/>
+                            </group>
+                            <group string="Timeline &amp; Progress">
+                                <field name="status"/>
+                                <field name="deadline" widget="date"/>
+                                <label for="progress" string="Progress (%)"/>
+                                <div class="o_row">
+                                    <field name="progress" widget="integer" options="{'min': 0, 'max': 100}" class="oe_inline" style="width: 80px;"/>
+                                    <span class="oe_inline">%</span>
+                                </div>
+                            </group>
+                        </group>
+                        
+                        <notebook>
+                            <page string="Notes &amp; Details">
+                                <field name="notes" placeholder="Add detailed notes, requirements, or updates here..." options="{'collaborative': true, 'resizable': true}"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

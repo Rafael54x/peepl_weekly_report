@@ -8,7 +8,7 @@ class PeeplPicOverview(models.Model):
 
     user_id = fields.Many2one('res.users', string='User', required=True)
     department_id = fields.Many2one('hr.department', string='Department')
-    position = fields.Char(string='Positions')
+    position = fields.Char(string='Employment Types')
     total_tasks = fields.Integer(string='Total Tasks')
     completed = fields.Integer(string='Completed')
     in_progress = fields.Integer(string='In Progress')

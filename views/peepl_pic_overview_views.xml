@@ -8,17 +8,17 @@
                 <header>
                     <button name="update_overview" string="Update" type="object" class="btn-primary"/>
                 </header>
-                <field name="user_id"/>
+                <field name="user_id" width="200px"/>
                 <field name="department_id"/>
-                <field name="position" width="100px" string="Positions"/>
-                <field name="total_tasks" width="120px" class="text-center"/>
-                <field name="completed" width="120px" class="text-center"/>
-                <field name="in_progress" width="120px" class="text-center"/>
-                <field name="not_started" width="120px" class="text-center"/>
-                <field name="delayed" width="120px" class="text-center"/>
-                <field name="plan" width="120px" class="text-center"/>
+                <field name="position" width="130px" string="Employment Types"/>
+                <field name="total_tasks" width="100px" class="text-center"/>
+                <field name="completed" width="100px" class="text-center"/>
+                <field name="in_progress" width="100px" class="text-center"/>
+                <field name="not_started" width="100px" class="text-center"/>
+                <field name="delayed" width="100px" class="text-center"/>
+                <field name="plan" width="100px" class="text-center"/>
                 <field name="avg_progress" widget="progressbar" width="150px"/>
-                <field name="overdue" width="120px" class="text-center"/>
+                <field name="overdue" width="100px" class="text-center"/>
             </list>
         </field>
     </record>
@@ -33,7 +33,7 @@
                         <group>
                             <field name="user_id" readonly="1"/>
                             <field name="department_id" readonly="1"/>
-                            <field name="position" readonly="1" string="Positions"/>
+                            <field name="position" readonly="1" string="Employment Types"/>
                             <field name="total_tasks" readonly="1"/>
                             <field name="completed" readonly="1"/>
                             <field name="in_progress" readonly="1"/>

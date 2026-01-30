@@ -1,0 +1,11 @@
+/* Force hide All Reports menu for BOD users */
+a[data-menu-xmlid="peepl_weekly_report.menu_peepl_weekly_report"] {
+    display: none !important;
+}
+
+/* Hide default modal footer buttons in field template form */
+.modal-content:has(.modal-title:contains("Create Field Templates")) .modal-footer.justify-content-around .o_form_button_save,
+.modal-content:has(.modal-title:contains("Create Field Templates")) .modal-footer.justify-content-around .o_form_button_save_new,
+.modal-content:has(.modal-title:contains("Create Field Templates")) .modal-footer.justify-content-around .o_form_button_cancel {
+    display: none !important;
+}

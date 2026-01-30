@@ -18,10 +18,7 @@
         <field name="name">peepl.field.template.form</field>
         <field name="model">peepl.field.template</field>
         <field name="arch" type="xml">
-            <form create="false" edit="true" delete="false">
-                <header>
-                    <button string="Save &amp; Reload" class="btn-primary" type="object" name="action_refresh_page"/>
-                </header>
+            <form create="true" edit="true" delete="true">
                 <sheet>
                     <div class="oe_title">
                         <label for="name" string="Field Name"/>
@@ -49,6 +46,13 @@
                                placeholder="e.g. res.partner" nolabel="1"/>
                     </group>
                 </sheet>
+                <footer>
+                    <div class="o_form_statusbar d-flex justify-content-between py-2">
+                        <div class="o_statusbar_buttons d-flex align-items-center align-content-around flex-wrap gap-1">
+                            <button string="Save &amp; Reload" class="btn btn-primary" type="object" name="action_refresh_page"/>
+                        </div>
+                    </div>
+                </footer>
             </form>
         </field>
     </record>

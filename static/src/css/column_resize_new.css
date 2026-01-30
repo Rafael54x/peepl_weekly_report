@@ -1,0 +1,15 @@
+.o_list_table th:not(:last-child) {
+    position: relative;
+}
+
+.o_list_table th:not(:last-child) .col-resizer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 4px;
+    cursor: col-resize;
+    background: rgba(0, 0, 0, 0.3);
+    opacity: 1;
+    z-index: 10;
+}

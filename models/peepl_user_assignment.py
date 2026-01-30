@@ -9,7 +9,7 @@ class PeeplUserAssignment(models.Model):
 
     user_id = fields.Many2one('res.users', string='User', required=True)
     allowed_user_ids = fields.Many2many('res.users', compute='_compute_allowed_users')
-    position_id = fields.Many2one('hr.contract.type', string='Employment Type', required=True)
+    position_id = fields.Many2one('hr.contract.type', string='Employment Types', required=True)
     department_id = fields.Many2one('hr.department', string='Department')
     assigned_by = fields.Many2one('res.users', string='Assigned By', default=lambda self: self.env.user)
     active = fields.Boolean(string='Active', default=True)

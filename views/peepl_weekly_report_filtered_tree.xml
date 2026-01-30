@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_weekly_report_filtered_tree" model="ir.ui.view">
+        <field name="name">peepl.weekly.report.filtered.tree</field>
+        <field name="model">peepl.weekly.report</field>
+        <field name="arch" type="xml">
+            <list duplicate="false">
+                <field name="display_number" string="No" width="40px" class="text-center"/>
+                <field name="name" column_invisible="1"/>
+                <field name="pic_id" optional="show"/>
+                <field name="department_id" optional="hide"/>
+                <field name="client_id" optional="show"/>
+                <field name="request_form" optional="show"/>
+                <field name="project_task" width="250px" optional="show"/>
+                <field name="deadline" optional="show"/>
+                <field name="status" optional="show"/>
+                <field name="progress" widget="progressbar" width="100px" optional="show"/>
+                <field name="notes" optional="show" widget="html"/>
+            </list>
+        </field>
+    </record>
+</odoo>

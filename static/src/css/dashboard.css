@@ -192,6 +192,8 @@
 
 .peepl-dashboard .table thead th:first-child {
     text-align: left;
+    width: 180px;
+    min-width: 180px;
 }
 
 .peepl-dashboard .table tbody td {
@@ -217,6 +219,8 @@
     font-weight: 600;
     color: #051847 !important;
     text-align: left;
+    width: 180px;
+    min-width: 180px;
 }
 
 .peepl-dashboard .badge {

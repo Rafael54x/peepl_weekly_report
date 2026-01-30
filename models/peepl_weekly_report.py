@@ -10,6 +10,15 @@ class PeeplWeeklyReport(models.Model):
     _inherit = ['peepl.field.template.mixin']
     _rec_name = 'project_task'
     _order = 'name asc'
+    
+    @api.model
+    def _setup_complete(self):
+        """Force setup completion for dynamic fields"""
+        super()._setup_complete()
+        # Refresh field definitions
+        self._fields.clear()
+        self._setup_fields()
+        return True
 
     name = fields.Integer(string='No', required=True, readonly=True, copy=False, default=lambda self: self._get_next_number())
     display_number = fields.Integer(string='No', compute='_compute_display_number', store=False)
@@ -73,6 +82,22 @@ class PeeplWeeklyReport(models.Model):
     ], string='Status', required=True, default='not_started', compute='_compute_status', store=True, readonly=False, group_expand='_group_expand_status')
     progress = fields.Integer(string='Progress (%)', default=0)
     notes = fields.Html(string='Notes')
+    notes_decoded = fields.Html(string='Notes Decoded', compute='_compute_notes_decoded')
+    
+    @api.depends('notes')
+    def _compute_notes_decoded(self):
+        import html
+        for record in self:
+            if record.notes:
+                # Decode HTML entities
+                decoded = html.unescape(record.notes)
+                # Clean up editor attributes
+                import re
+                decoded = re.sub(r'data-oe-version="[^"]*"', '', decoded)
+                decoded = re.sub(r'data-last-history-steps="[^"]*"', '', decoded)
+                record.notes_decoded = decoded
+            else:
+                record.notes_decoded = ''
 
     @api.constrains('pic_id')
     def _check_pic_department(self):
@@ -259,3 +284,17 @@ class PeeplWeeklyReport(models.Model):
             # Get all assigned users from user assignment
             assigned_users = self.env['peepl.user.assignment'].search([('active', '=', True)]).mapped('user_id')
             record.allowed_pic_ids = assigned_users
+
+
+
+    def action_open_form(self):
+        """Open form view for this record"""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': f'Weekly Report - {self.project_task}',
+            'res_model': 'peepl.weekly.report',
+            'view_mode': 'form',
+            'res_id': self.id,
+            'target': 'current',
+        }
