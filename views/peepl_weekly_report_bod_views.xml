@@ -134,13 +134,6 @@
             </field>
         </record>
 
-        <!-- Action -->
-        <record id="action_weekly_report_department" model="ir.actions.act_window">
-            <field name="name">Weekly Reports by Department</field>
-            <field name="res_model">peepl.weekly.report.department</field>
-            <field name="view_mode">kanban,list,form</field>
-        </record>
-
         <!-- BOD Weekly Report List View -->
         <record id="view_weekly_report_bod_list" model="ir.ui.view">
             <field name="name">peepl.weekly.report.bod.list</field>
