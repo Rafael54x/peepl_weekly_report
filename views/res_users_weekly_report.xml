@@ -8,8 +8,7 @@
             <xpath expr="//page[@name='access_rights']//group[1]" position="after">
                 <group string="Weekly Reports">
                     <field name="weekly_report_access"/>
-                    <button name="action_sync_weekly_report_access" string="Apply" type="object" class="btn-primary"/>
-                </group>
+                    </group>
             </xpath>
         </field>
     </record>
