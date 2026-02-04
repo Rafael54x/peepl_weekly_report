@@ -145,11 +145,11 @@
         <field name="view_mode">list,form</field>
     </record>
 
-    <record id="action_peepl_weekly_report" model="ir.actions.act_window">
+    <record id="action_peepl_weekly_report_server" model="ir.actions.server">
         <field name="name">Weekly Reports</field>
-        <field name="res_model">peepl.weekly.report</field>
-        <field name="view_mode">list,kanban,form</field>
-        <field name="context">{'allowed_user_ids': []}</field>
+        <field name="model_id" ref="model_peepl_weekly_report"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_weekly_report_with_dept_filter()</field>
     </record>
 
     <record id="action_weekly_report_department" model="ir.actions.act_window">
@@ -174,7 +174,7 @@
     <menuitem id="menu_peepl_weekly_report"
               name="Weekly Reports"
               parent="menu_peepl_weekly_report_root"
-              action="action_peepl_weekly_report"
+              action="action_peepl_weekly_report_server"
               groups="peepl_weekly_report.group_peepl_staff,peepl_weekly_report.group_peepl_manager"
               sequence="11"/>
               

@@ -58,9 +58,15 @@
         <field name="context">{'create': False, 'edit': False}</field>
     </record>
 
+    <!-- Custom PIC Overview Action -->
+    <record id="action_peepl_pic_overview_custom" model="ir.actions.client">
+        <field name="name">PIC Overview</field>
+        <field name="tag">pic_overview_custom_view</field>
+    </record>
+
     <menuitem id="menu_peepl_pic_overview_main"
               name="PIC Overview"
               parent="menu_peepl_weekly_report_root"
-              action="action_peepl_pic_overview"
+              action="action_peepl_pic_overview_custom"
               sequence="15"/>
 </odoo>

@@ -24,8 +24,10 @@ Comprehensive weekly reporting system for Odoo 19 with advanced project manageme
 - Status tracking: Not Started, In Progress, Completed, Delayed, Plan, Overdue
 - Progress percentage tracking (0-100%)
 - Client and project association
-- Notes and detailed descriptions
+- Request form reference tracking
+- Notes and detailed descriptions (HTML editor)
 - Date range tracking (start date, end date, deadline)
+- Automatic overdue status detection via cron job
 
 ### 2. Dynamic Field System
 - **Template-based custom fields** - Create fields without coding
@@ -70,6 +72,8 @@ Comprehensive weekly reporting system for Odoo 19 with advanced project manageme
 - **Manager:** Access only to their department's data
 - **Staff:** Access only to their own data
 - Automatic filtering based on `hr.employee` department assignment
+- Smart menu hiding (BOD sees department view, others see standard view)
+- Context-aware PIC field filtering for managers
 
 ### 6. User Assignment System
 - Link users to departments and positions
@@ -77,6 +81,30 @@ Comprehensive weekly reporting system for Odoo 19 with advanced project manageme
 - Position-based role assignment (Staff, Manager, BOD)
 - Active/inactive status tracking
 - Assignment history
+- Batch synchronization of user groups
+- Automatic group assignment based on position
+
+### 7. Advanced UI Features
+- **Column Resizing:** Interactive column width adjustment in list views
+- **Auto-refresh:** Browser automatically reloads after field template changes
+- **Smart Filtering:** Context-aware field visibility and user selection
+- **Progress Bars:** Visual progress indicators in list views
+- **Avatar Integration:** User avatars in employee fields
+- **Responsive Design:** Mobile-friendly interface
+
+### 8. Department Overview System
+- **Kanban Department View:** Visual department cards for BOD
+- **Department Statistics:** Real-time report counts per department
+- **Department Configuration:** Integrated field template and user management
+- **Department Filtering:** Context-aware data segregation
+- **Manager Integration:** HR department manager display
+
+### 9. Configuration & Settings
+- **System Settings:** Email configuration and auto-send options
+- **User Role Display:** Current user access level indicator
+- **Default Field Reference:** Built-in field documentation
+- **Demo Data:** Sample field templates for testing
+- **Cron Job Management:** Automated overdue status updates
 
 ---
 
@@ -121,12 +149,14 @@ Comprehensive weekly reporting system for Odoo 19 with advanced project manageme
 - `display_number` - Department-based sequential number (e.g., 1, 2, 3)
 - `pic_id` - Person in charge (user)
 - `client_id` - Client/partner
-- `project` - Project name
-- `task` - Task description
+- `project_task` - Project/task name
+- `request_form` - Request form reference
 - `status` - Task status (selection)
 - `progress` - Completion percentage (0-100)
-- `start_date`, `end_date`, `deadline` - Date tracking
-- `notes` - Additional information
+- `deadline` - Task deadline
+- `notes` - Additional information (HTML)
+- `department_id` - Department assignment
+- `allowed_pic_ids` - Computed field for PIC filtering
 - Dynamic fields from templates (e.g., `x_field1_value`, `x_field2_value`)
 
 **Special Features:**
@@ -205,6 +235,65 @@ Comprehensive weekly reporting system for Odoo 19 with advanced project manageme
 - Progress tracking
 - Quick statistics
 - Interactive widgets
+
+### 6. BOD Weekly Report (`peepl.weekly.report.bod`)
+**Purpose:** BOD-specific view with department filtering
+
+**Features:**
+- Inherits from main weekly report
+- Department context filtering
+- Dynamic field visibility based on department
+- Same table structure (no separate storage)
+
+### 7. Department View (`peepl.weekly.report.department`)
+**Purpose:** Department-centric reporting interface
+
+**Key Fields:**
+- `department_id` - Department reference
+- `manager_id` - Department manager
+- `total_reports` - Report count
+- `status` - Department status (draft/done)
+- `field_template_ids` - Department field templates
+- `user_assignment_ids` - Department user assignments
+
+**Features:**
+- SQL view for performance
+- Kanban interface for BOD
+- Integrated configuration management
+- One-click report access
+
+### 8. Default Field Reference (`peepl.default.field`)
+**Purpose:** Documentation of built-in fields
+
+**Features:**
+- Read-only field reference
+- Field type documentation
+- Description explanations
+- Integration with department configuration
+
+### 9. HR Department Extension (`hr.department`)
+**Purpose:** Integration with HR module
+
+**Added Fields:**
+- `weekly_report_ids` - Related weekly reports
+- `weekly_report_count` - Computed report count
+
+### 10. User Extension (`res.users`)
+**Purpose:** Enhanced user selection for managers
+
+**Features:**
+- Context-aware name search
+- Department-based filtering
+- Manager-specific user lists
+- Integration with user assignments
+
+### 11. Settings Extension (`res.config.settings`)
+**Purpose:** System configuration
+
+**Added Fields:**
+- `report_email` - Email configuration
+- `auto_send` - Auto-send toggle
+- `current_user_role` - Role display
 
 ---
 
@@ -635,6 +724,30 @@ WR005           | Sales      | 2
 6. Users see updated status in list view
 ```
 
+### Workflow 5: BOD Department Management
+```
+1. BOD logs in → Sees Department Kanban view
+2. Each department card shows:
+   - Department name
+   - Manager with avatar
+   - Total report count
+3. Click department card → Opens department reports
+4. Click settings → Department configuration
+5. Configure field templates per department
+6. Manage user assignments per department
+7. View department-specific statistics
+```
+
+### Workflow 6: Column Resizing in List Views
+```
+1. User opens any list view
+2. Hover over column borders
+3. Drag to resize columns
+4. Width persists during session
+5. Minimum width enforced (60px)
+6. All rows adjust automatically
+```
+
 ### Workflow 5: Department-Based Filtering
 ```
 Staff (IT Department):
@@ -663,8 +776,14 @@ BOD:
 **Overdue Detection:**
 - System automatically sets status to 'overdue' when deadline passes
 - Cannot change from 'overdue' to other status except 'completed'
-- Cron job runs daily to update overdue reports
+- Cron job runs daily to update overdue reports (ir.cron)
 - Manual status change prevented via onchange validation
+
+**Cron Job Configuration:**
+- Model: `peepl.weekly.report`
+- Method: `update_overdue_status()`
+- Frequency: Daily
+- Auto-active on module install
 
 **Status Workflow:**
 ```
@@ -725,6 +844,13 @@ def _get_next_number(self):
 <field name="x_field15_value" string="Deal Size"/>
 ```
 
+**BOD Department Context Filtering:**
+- BOD can see all fields from all departments
+- When clicking specific department, only that department's fields show
+- Uses `default_department_id` context
+- Dynamic `column_invisible` attribute injection
+- Preserves field data while hiding irrelevant fields
+
 **Injection Points:**
 - Form view: After 'notes' field
 - List view: After 'notes' column
@@ -736,6 +862,27 @@ def _get_next_number(self):
 - Model search() override for hr.employee integration
 - View domain filters for UI
 - Computed fields for allowed users/departments
+
+**Menu Visibility Control:**
+- JavaScript-based menu hiding for non-BOD users
+- BOD sees "Department Reports" menu
+- Staff/Manager see standard "Weekly Reports" menu
+- Dynamic style injection via MutationObserver
+- Instant hiding without page reload
+
+### 6. Enhanced User Experience
+**Auto-Refresh System:**
+- Field template changes trigger browser reload
+- Form save/delete operations monitored
+- 1-second delay for server synchronization
+- Prevents stale view issues
+
+**Column Resizing:**
+- Interactive column width adjustment
+- Real-time visual feedback
+- Minimum width constraints
+- Cross-row synchronization
+- Mouse event handling
 
 **Security Layers:**
 ```
@@ -768,6 +915,8 @@ Layer 4: View Domain (allowed_user_ids)
 - Each department sees only their fields
 - BOD sees all fields when creating reports
 - Staff in IT only see IT reports with IT fields
+- BOD uses department kanban view for overview
+- Column resizing for better data visibility
 
 ### Scenario 2: Project Tracking
 **Setup:**
@@ -1045,6 +1194,16 @@ def _check_deadline(self):
 - PIC Overview with real-time statistics
 - Interactive dashboard
 - User assignment management
+- BOD department kanban interface
+- Column resizing in list views
+- Smart menu hiding system
+- Context-aware field filtering
+- HTML notes editor
+- Request form tracking
+- Automated overdue detection
+- Department configuration interface
+- User role display in settings
+- Enhanced UI/UX features
 
 ---
 

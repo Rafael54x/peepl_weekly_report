@@ -27,8 +27,8 @@
                             </div>
                         </t>
                         <t t-name="card">
-                            <button class="btn btn-link p-0 w-100 text-start" name="action_open_reports" type="object" style="border: none; background: none;">
-                                <div class="oe_kanban_card">
+                            <button class="btn w-100 h-100 p-0 border-0 bg-transparent text-start shadow-none" name="action_open_reports" type="object" style="cursor: pointer; box-shadow: none !important;">
+                                <div class="oe_kanban_card w-100 h-100">
                                     <div class="fw-bold fs-4 d-block ms-2">
                                         <field name="department_id"/>
                                     </div>

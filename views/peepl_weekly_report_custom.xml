@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- This file is kept for backward compatibility but the main action is now in peepl_weekly_report_views.xml -->
+</odoo>

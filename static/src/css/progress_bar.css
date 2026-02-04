@@ -1,0 +1,12 @@
+/* Progress bar color based on percentage */
+.o_field_widget[name="progress"][data-progress-low] .o_progress .bg-primary {
+    background-color: #dc3545 !important; /* Red for 0-29% */
+}
+
+.o_field_widget[name="progress"][data-progress-medium] .o_progress .bg-primary {
+    background-color: #ffc107 !important; /* Yellow for 30-89% */
+}
+
+.o_field_widget[name="progress"][data-progress-high] .o_progress .bg-primary {
+    background-color: #198754 !important; /* Green for 90-100% */
+}

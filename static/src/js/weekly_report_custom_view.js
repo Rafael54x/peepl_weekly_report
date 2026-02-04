@@ -22,37 +22,75 @@ class WeeklyReportCustomView extends Component {
             sortField: "display_number",
             sortOrder: "asc",
             currentPage: 1,
-            recordsPerPage: 80,
+            recordsPerPage: 20,
             totalRecords: 0,
             selectedRecords: new Set(),
             selectAll: false,
-            dynamicFields: []
+            dynamicFields: [],
+            uniqueNames: []
         });
         
+        this.userDepartmentId = null;
+        this.isManager = false;
+        this.isStaff = false;
+        this.isBOD = false;
+        
         onWillStart(async () => {
+            // Load user department and role first
+            await this.loadUserDepartment();
+            await this.loadUserRole();
+            
             // Get department filter from URL params or context
             const urlParams = new URLSearchParams(window.location.search);
             const deptFromUrl = urlParams.get('dept_filter');
             const deptNameFromUrl = urlParams.get('dept_name');
             
-            // Always preserve URL params
-            if (this.props.action?.context?.dept_filter || deptFromUrl) {
-                const url = new URL(window.location);
-                const deptId = deptFromUrl || this.props.action.context.dept_filter;
-                const deptName = deptNameFromUrl || this.props.action.context.dept_name || '';
-                
-                url.searchParams.set('dept_filter', deptId);
-                url.searchParams.set('dept_name', deptName);
-                
-                // Only replace if URL changed
-                if (url.toString() !== window.location.toString()) {
-                    window.history.replaceState({}, '', url);
+            // Use context values if available, otherwise use URL params
+            const contextDeptId = this.props.action?.context?.dept_filter;
+            const contextDeptName = this.props.action?.context?.dept_name;
+            
+            let finalDeptId = contextDeptId || deptFromUrl;
+            let finalDeptName = contextDeptName || deptNameFromUrl;
+            
+            // Auto-redirect Manager/Staff to their department if no filter specified
+            if (!finalDeptId && this.userDepartmentId && (this.isManager || this.isStaff)) {
+                finalDeptId = this.userDepartmentId;
+                // Get department name
+                try {
+                    const dept = await this.orm.searchRead(
+                        "hr.department",
+                        [["id", "=", this.userDepartmentId]],
+                        ["name"],
+                        { limit: 1 }
+                    );
+                    if (dept.length > 0) {
+                        finalDeptName = dept[0].name;
+                    }
+                } catch (error) {
+                    console.warn("Could not load department name:", error);
                 }
+                
+                // Redirect to department filtered URL
+                if (finalDeptId && finalDeptName) {
+                    const newUrl = new URL(window.location);
+                    newUrl.searchParams.set('dept_filter', finalDeptId);
+                    newUrl.searchParams.set('dept_name', finalDeptName);
+                    window.location.href = newUrl.toString();
+                    return; // Stop execution, page will reload
+                }
+            }
+            
+            // Update URL and context with detected department
+            if (finalDeptId && finalDeptName) {
+                const url = new URL(window.location);
+                url.searchParams.set('dept_filter', finalDeptId);
+                url.searchParams.set('dept_name', finalDeptName);
+                window.history.replaceState({}, '', url);
                 
                 // Update context
                 if (this.props.action?.context) {
-                    this.props.action.context.dept_filter = parseInt(deptId);
-                    this.props.action.context.dept_name = deptName;
+                    this.props.action.context.dept_filter = parseInt(finalDeptId);
+                    this.props.action.context.dept_name = finalDeptName;
                 }
             }
             
@@ -67,26 +105,83 @@ class WeeklyReportCustomView extends Component {
         });
     }
     
+
+    async loadUserRole() {
+        try {
+            // Check user groups to determine role
+            const userGroups = await this.orm.call(
+                "res.users",
+                "has_group",
+                ["peepl_weekly_report.group_peepl_bod"]
+            );
+            
+            if (userGroups) {
+                this.isBOD = true;
+                return;
+            }
+            
+            const isManager = await this.orm.call(
+                "res.users",
+                "has_group",
+                ["peepl_weekly_report.group_peepl_manager"]
+            );
+            
+            if (isManager) {
+                this.isManager = true;
+                return;
+            }
+            
+            const isStaff = await this.orm.call(
+                "res.users",
+                "has_group",
+                ["peepl_weekly_report.group_peepl_staff"]
+            );
+            
+            if (isStaff) {
+                this.isStaff = true;
+            }
+        } catch (error) {
+            console.warn("Could not load user role:", error);
+        }
+    }
+    
+    async loadUserDepartment() {
+        try {
+            const currentUser = await this.orm.searchRead(
+                "peepl.user.assignment",
+                [["user_id", "=", this.env.user.userId], ["active", "=", true]],
+                ["department_id"],
+                { limit: 1 }
+            );
+            if (currentUser.length > 0 && currentUser[0].department_id) {
+                this.userDepartmentId = currentUser[0].department_id[0];
+            }
+        } catch (error) {
+            console.warn("Could not load user department:", error);
+        }
+    }
+    
     preserveUrlParams() {
-        // Monitor URL changes and preserve search params
+        // Get current department from context (newly clicked department)
+        const contextDeptId = this.props.action?.context?.dept_filter;
+        const contextDeptName = this.props.action?.context?.dept_name;
+        
+        // Monitor URL changes and preserve current department params
         const observer = new MutationObserver(() => {
             const currentUrl = new URL(window.location);
-            const hasParams = currentUrl.searchParams.has('dept_filter');
+            const urlDeptId = currentUrl.searchParams.get('dept_filter');
             
-            if (!hasParams && (this.props.action?.context?.dept_filter || this.departmentId)) {
-                const deptId = this.departmentId || this.props.action.context.dept_filter;
-                const deptName = this.props.action?.context?.dept_name || '';
-                
-                currentUrl.searchParams.set('dept_filter', deptId);
-                currentUrl.searchParams.set('dept_name', deptName);
-                
+            // Only update URL if it doesn't match current context
+            if (contextDeptId && (!urlDeptId || urlDeptId != contextDeptId)) {
+                currentUrl.searchParams.set('dept_filter', contextDeptId);
+                currentUrl.searchParams.set('dept_name', contextDeptName || '');
                 window.history.replaceState({}, '', currentUrl);
             }
         });
         
         observer.observe(document.body, { childList: true, subtree: true });
         
-        // Also handle popstate events
+        // Handle popstate events
         window.addEventListener('popstate', () => {
             setTimeout(() => this.preserveUrlParams(), 100);
         });
@@ -99,7 +194,18 @@ class WeeklyReportCustomView extends Component {
         if (deptFromUrl) {
             return parseInt(deptFromUrl);
         }
-        return this.props.action?.context?.dept_filter || null;
+        
+        const contextDept = this.props.action?.context?.dept_filter;
+        if (contextDept) {
+            return contextDept;
+        }
+        
+        // For Manager/Staff, return their department ID if available
+        if (this.userDepartmentId) {
+            return this.userDepartmentId;
+        }
+        
+        return null;
     }
     
     get domain() {
@@ -107,21 +213,25 @@ class WeeklyReportCustomView extends Component {
         if (this.departmentId) {
             domain.push(["department_id", "=", this.departmentId]);
         }
-        if (this.state.searchTerm) {
-            domain.push([
-                "|", "|", "|",
-                ["project_task", "ilike", this.state.searchTerm],
-                ["pic_id.name", "ilike", this.state.searchTerm],
-                ["client_id.name", "ilike", this.state.searchTerm],
-                ["status", "ilike", this.state.searchTerm]
-            ]);
+        
+        // Check URL params for filter
+        const urlParams = new URLSearchParams(window.location.search);
+        const nameFilter = urlParams.get('name_filter') || this.state.searchTerm;
+        
+        if (nameFilter) {
+            domain.push(["pic_id.name", "=", nameFilter]);
         }
+        
+        console.log("Search domain:", domain, "Name filter:", nameFilter);
         return domain;
     }
     
     async loadDynamicFields() {
         try {
             const deptId = this.departmentId;
+            console.log("loadDynamicFields - departmentId:", deptId);
+            console.log("loadDynamicFields - userDepartmentId:", this.userDepartmentId);
+            
             if (deptId) {
                 const templates = await this.orm.searchRead(
                     "peepl.field.template",
@@ -129,13 +239,16 @@ class WeeklyReportCustomView extends Component {
                     ["name", "field_type"],
                     { order: "sequence" }
                 );
+                console.log("loadDynamicFields - templates found:", templates);
                 
                 this.state.dynamicFields = templates.map(t => ({
                     name: `x_field${t.id}_value`,
                     label: t.name,
                     type: t.field_type
                 }));
+                console.log("loadDynamicFields - dynamicFields:", this.state.dynamicFields);
             } else {
+                console.log("loadDynamicFields - no deptId, setting empty array");
                 this.state.dynamicFields = [];
             }
         } catch (error) {
@@ -147,35 +260,72 @@ class WeeklyReportCustomView extends Component {
     async loadRecords() {
         this.state.loading = true;
         try {
-            const domain = this.domain; // Use the computed domain that includes department filter
+            const domain = this.domain;
             const context = {};
             
-            // Set department filter in context for field filtering
             if (this.departmentId) {
                 context.dept_filter = this.departmentId;
             }
             
-            const fields = [
-                "display_number", "pic_id", "client_id", "request_form", "project_task", "deadline", "status", "progress", "notes", "department_id",
-                ...this.state.dynamicFields.map(f => f.name)
+            // Load basic fields first
+            const basicFields = [
+                "display_number", "pic_id", "client_id", "request_form", 
+                "project_task", "deadline", "status", "progress", "notes", "department_id"
             ];
+            
+            // Only add dynamic fields that actually exist
+            const availableFields = [...basicFields];
+            for (const field of this.state.dynamicFields) {
+                try {
+                    // Test if field exists by doing a small search
+                    await this.orm.searchRead(
+                        "peepl.weekly.report",
+                        [],
+                        [field.name],
+                        { limit: 1 }
+                    );
+                    availableFields.push(field.name);
+                } catch (error) {
+                    console.warn(`Field ${field.name} not available:`, error);
+                }
+            }
             
             const records = await this.orm.searchRead(
                 "peepl.weekly.report",
                 domain,
-                fields,
-                { limit: 50, context }
+                availableFields,
+                { 
+                    limit: this.state.recordsPerPage,
+                    offset: (this.state.currentPage - 1) * this.state.recordsPerPage,
+                    context 
+                }
             );
             
-            // Add sequential display numbers starting from 1
+            const totalCount = await this.orm.searchCount(
+                "peepl.weekly.report",
+                domain
+            );
+            
             records.forEach((record, index) => {
                 record.display_number = index + 1;
             });
             
+            const uniqueNamesSet = new Set();
+            records.forEach(record => {
+                if (record.pic_id && record.pic_id[1]) {
+                    uniqueNamesSet.add(record.pic_id[1]);
+                }
+            });
+            this.state.uniqueNames = Array.from(uniqueNamesSet).sort();
+            
             this.state.records = records;
-            this.state.totalRecords = records.length;
+            this.state.totalRecords = totalCount;
+            
+            setTimeout(() => this.renderNotesContent(), 50);
         } catch (error) {
             console.error("Error loading records:", error);
+            this.state.records = [];
+            this.state.totalRecords = 0;
         } finally {
             this.state.loading = false;
         }
@@ -196,10 +346,18 @@ class WeeklyReportCustomView extends Component {
             progressCells.forEach(container => {
                 const td = container.closest('td[data-progress]');
                 const progress = parseInt(td.getAttribute('data-progress')) || 0;
+                
+                let colorClass = '#dc3545'; // Red for 0-29%
+                if (progress >= 30 && progress <= 89) {
+                    colorClass = '#ffc107'; // Yellow for 30-89%
+                } else if (progress >= 90) {
+                    colorClass = '#198754'; // Green for 90-100%
+                }
+                
                 container.innerHTML = `
                     <div class="o_progressbar w-100 d-flex align-items-center">
                         <div class="o_progress align-middle overflow-hidden" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}">
-                            <div class="bg-primary h-100" style="width: ${progress}%"></div>
+                            <div class="h-100" style="width: ${progress}%; background-color: ${colorClass};"></div>
                         </div>
                         <div class="o_progressbar_value d-flex">
                             <span class="mx-1">${progress}</span>
@@ -288,6 +446,35 @@ class WeeklyReportCustomView extends Component {
     async onPageChange(page) {
         this.state.currentPage = page;
         await this.loadRecords();
+    }
+    
+    onNameFilter(name) {
+        const url = new URL(window.location);
+        if (name) {
+            url.searchParams.set('name_filter', name);
+        } else {
+            url.searchParams.delete('name_filter');
+        }
+        window.history.replaceState({}, '', url);
+        
+        this.state.searchTerm = name;
+        this.state.currentPage = 1;
+        this.loadRecords();
+    }
+    
+    clearFilter() {
+        const url = new URL(window.location);
+        url.searchParams.delete('name_filter');
+        window.history.replaceState({}, '', url);
+        
+        this.state.searchTerm = "";
+        this.state.currentPage = 1;
+        
+        // Reset dropdown
+        const select = this.el?.querySelector('select');
+        if (select) select.value = "";
+        
+        this.loadRecords();
     }
     
     onSelectRecord(recordId) {
@@ -430,10 +617,17 @@ class WeeklyReportCustomView extends Component {
     
     renderProgressBar(progress) {
         const percentage = progress || 0;
+        let colorClass = '#dc3545'; // Red for 0-29%
+        if (percentage >= 30 && percentage <= 89) {
+            colorClass = '#ffc107'; // Yellow for 30-89%
+        } else if (percentage >= 90) {
+            colorClass = '#198754'; // Green for 90-100%
+        }
+        
         return `
             <div class="o_progressbar w-100 d-flex align-items-center">
                 <div class="o_progress align-middle overflow-hidden" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percentage}">
-                    <div class="bg-primary h-100" style="width: min(${percentage}%, 100%)"></div>
+                    <div class="h-100" style="width: min(${percentage}%, 100%); background-color: ${colorClass};"></div>
                 </div>
                 <div class="o_progressbar_value d-flex">
                     <span class="mx-1">${percentage}</span>

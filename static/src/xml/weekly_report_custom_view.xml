@@ -6,6 +6,7 @@
                 <!-- Control Panel -->
                 <div class="o_control_panel d-flex flex-column gap-3 px-3 pt-2 pb-3" data-command-category="actions">
                     <div class="o_control_panel_main d-flex flex-wrap flex-lg-nowrap justify-content-between align-items-lg-start gap-2 gap-lg-3 flex-grow-1">
+                        <!-- Left: New Button + Title -->
                         <div class="o_control_panel_breadcrumbs d-flex align-items-center gap-1 order-0 h-lg-100">
                             <div class="o_control_panel_main_buttons d-flex gap-1 d-empty-none d-print-none">
                                 <button type="button" class="btn btn-primary o_list_button_add" data-hotkey="c" t-on-click="() => this.createRecord()">
@@ -19,10 +20,27 @@
                             </div>
                         </div>
                         
-                        <!-- Pagination -->
-                        <div class="o_control_panel_navigation d-flex flex-wrap flex-md-nowrap justify-content-end gap-1 gap-xl-3 order-1 order-lg-2 flex-grow-1">
+                        <!-- Center: Filter -->
+                        <div class="d-flex align-items-center justify-content-center gap-2 order-1">
+                            <label class="form-label mb-0 fw-bold">Filter:</label>
+                            <select class="form-select form-select-sm" style="min-width: 200px;" t-on-change="(e) => { this.onNameFilter(e.target.value); }">
+                                <option value="">All Names</option>
+                                <t t-foreach="state.uniqueNames" t-as="name" t-key="name">
+                                    <option t-att-value="name" t-esc="name"></option>
+                                </t>
+                            </select>
+                            <button t-if="state.searchTerm" class="btn btn-outline-danger btn-sm" t-on-click="() => this.clearFilter()" title="Clear Filter">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Right: Pagination -->
+                        <div class="o_control_panel_navigation d-flex flex-wrap flex-md-nowrap justify-content-end gap-3 order-2">
                             <div class="o_cp_pager text-nowrap" role="search">
                                 <nav class="o_pager d-flex gap-2 h-100" aria-label="Pager">
+                                    <button class="btn btn-outline-secondary btn-sm" t-on-click="() => this.onPageChange(state.currentPage - 1)" t-att-disabled="state.currentPage === 1">
+                                        <i class="fa fa-chevron-left"></i>
+                                    </button>
                                     <span class="o_pager_counter align-self-center">
                                         <span class="o_pager_value d-inline-block border-bottom border-transparent mb-n1">
                                             <t t-esc="pagerStart"/>-<t t-esc="pagerEnd"/>
@@ -30,6 +48,14 @@
                                         <span> / </span>
                                         <span class="o_pager_limit"><t t-esc="state.totalRecords"/></span>
                                     </span>
+                                    <button class="btn btn-outline-secondary btn-sm" t-on-click="() => this.onPageChange(state.currentPage + 1)" t-att-disabled="state.currentPage === totalPages">
+                                        <i class="fa fa-chevron-right"></i>
+                                    </button>
+                                    <select class="form-select form-select-sm ms-2" style="width: auto;" t-model="state.recordsPerPage" t-on-change="() => { this.state.currentPage = 1; this.loadRecords(); }">
+                                        <option value="20">20</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
                                 </nav>
                             </div>
                         </div>
@@ -50,7 +76,7 @@
                                 <tr>
                                     
                                     <!-- No Column -->
-                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="display_number" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 60px;" t-on-click="(ev) => this.onSort('display_number')">
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="display_number" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 49px;" t-on-click="(ev) => this.onSort('display_number')">
                                         <div class="d-flex align-items-center">
                                             <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1 o_list_number_th">No</span>
                                             <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('display_number')}} opacity-0 opacity-100-hover"></i>
@@ -58,7 +84,7 @@
                                     </th>
                                     
                                     <!-- PIC Column -->
-                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="pic_id" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 120px;" t-on-click="(ev) => this.onSort('pic_id')">
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="pic_id" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 89px;" t-on-click="(ev) => this.onSort('pic_id')">
                                         <div class="d-flex align-items-center">
                                             <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1">PIC</span>
                                             <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('pic_id')}} opacity-0 opacity-100-hover"></i>
@@ -66,7 +92,7 @@
                                     </th>
                                     
                                     <!-- Client Column -->
-                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="client_id" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 120px;" t-on-click="(ev) => this.onSort('client_id')">
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="client_id" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 89px;" t-on-click="(ev) => this.onSort('client_id')">
                                         <div class="d-flex align-items-center">
                                             <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1">Client</span>
                                             <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('client_id')}} opacity-0 opacity-100-hover"></i>
@@ -74,7 +100,7 @@
                                     </th>
                                     
                                     <!-- Request Form Column -->
-                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="request_form" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 100px;" t-on-click="(ev) => this.onSort('request_form')">
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="request_form" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 89px;" t-on-click="(ev) => this.onSort('request_form')">
                                         <div class="d-flex align-items-center">
                                             <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1">Request Form</span>
                                             <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('request_form')}} opacity-0 opacity-100-hover"></i>
@@ -82,7 +108,7 @@
                                     </th>
                                     
                                     <!-- Project Task Column -->
-                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="project_task" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 250px;" t-on-click="(ev) => this.onSort('project_task')">
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="project_task" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 259px;" t-on-click="(ev) => this.onSort('project_task')">
                                         <div class="d-flex align-items-center">
                                             <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1">Project / Task</span>
                                             <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('project_task')}} opacity-0 opacity-100-hover"></i>
@@ -90,24 +116,24 @@
                                     </th>
                                     
                                     <!-- Deadline Column -->
-                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="deadline" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto text-center" style="width: 100px;" t-on-click="(ev) => this.onSort('deadline')">
-                                        <div class="d-flex align-items-center justify-content-center">
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="deadline" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 96px;" t-on-click="(ev) => this.onSort('deadline')">
+                                        <div class="d-flex align-items-center">
                                             <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1">Deadline</span>
                                             <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('deadline')}} opacity-0 opacity-100-hover"></i>
                                         </div>
                                     </th>
                                     
                                     <!-- Status Column -->
-                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="status" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto text-center" style="width: 100px;" t-on-click="(ev) => this.onSort('status')">
-                                        <div class="d-flex align-items-center justify-content-center">
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="status" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 89px;" t-on-click="(ev) => this.onSort('status')">
+                                        <div class="d-flex align-items-center">
                                             <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1">Status</span>
                                             <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('status')}} opacity-0 opacity-100-hover"></i>
                                         </div>
                                     </th>
                                     
                                     <!-- Progress Column -->
-                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="progress" class="align-middle o_column_sortable position-relative cursor-pointer o_list_number_th o_progressbar_cell opacity-trigger-hover w-print-auto text-center" style="width: 120px;" t-on-click="(ev) => this.onSort('progress')">
-                                        <div class="d-flex align-items-center justify-content-center">
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="progress" class="align-middle o_column_sortable position-relative cursor-pointer o_list_number_th o_progressbar_cell opacity-trigger-hover w-print-auto" style="width: 109px;" t-on-click="(ev) => this.onSort('progress')">
+                                        <div class="d-flex align-items-center">
                                             <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1 o_list_number_th">Progress (%)</span>
                                             <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('progress')}} opacity-0 opacity-100-hover"></i>
                                         </div>
@@ -115,7 +141,7 @@
                                     
                                     <!-- Dynamic Fields -->
                                     <t t-foreach="state.dynamicFields" t-as="field" t-key="field.name">
-                                        <th data-tooltip-delay="1000" tabindex="-1" t-att-data-name="field.name" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 150px;" t-on-click="(ev) => this.onSort(field.name)">
+                                        <th data-tooltip-delay="1000" tabindex="-1" t-att-data-name="field.name" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 209px;" t-on-click="(ev) => this.onSort(field.name)">
                                             <div class="d-flex align-items-center">
                                                 <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1" t-esc="field.label"></span>
                                                 <i t-attf-class="o_list_sortable_icon fa {{getSortIcon(field.name)}} opacity-0 opacity-100-hover"></i>
@@ -124,7 +150,7 @@
                                     </t>
                                     
                                     <!-- Notes Column -->
-                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="notes" class="align-middle o_column_sortable position-relative cursor-pointer o_html_cell opacity-trigger-hover w-print-auto" style="width: 200px;" t-on-click="(ev) => this.onSort('notes')">
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="notes" class="align-middle o_column_sortable position-relative cursor-pointer o_html_cell opacity-trigger-hover w-print-auto" style="width: 89px;" t-on-click="(ev) => this.onSort('notes')">
                                         <div class="d-flex align-items-center">
                                             <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1">Notes</span>
                                             <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('notes')}} opacity-0 opacity-100-hover"></i>
@@ -153,13 +179,13 @@
                                         <td class="o_data_cell cursor-pointer o_field_cell o_list_char o_required_modifier" data-tooltip-delay="1000" tabindex="-1" name="project_task" t-att-data-tooltip="record.project_task || ''" t-esc="record.project_task || ''"></td>
                                         
                                         <!-- Deadline -->
-                                        <td class="o_data_cell cursor-pointer o_field_cell text-center" data-tooltip-delay="1000" tabindex="-1" name="deadline" t-esc="formatDate(record.deadline)"></td>
+                                        <td class="o_data_cell cursor-pointer o_field_cell" data-tooltip-delay="1000" tabindex="-1" name="deadline" t-esc="formatDate(record.deadline)"></td>
                                         
                                         <!-- Status -->
-                                        <td class="o_data_cell cursor-pointer o_field_cell o_required_modifier text-center" data-tooltip-delay="1000" tabindex="-1" name="status" t-esc="getStatusLabel(record.status)"></td>
+                                        <td class="o_data_cell cursor-pointer o_field_cell o_required_modifier" data-tooltip-delay="1000" tabindex="-1" name="status" t-esc="getStatusLabel(record.status)"></td>
                                         
                                         <!-- Progress -->
-                                        <td class="o_data_cell cursor-pointer o_field_cell o_list_number o_progressbar_cell text-center" data-tooltip-delay="1000" tabindex="-1" name="progress" t-att-data-progress="record.progress">
+                                        <td class="o_data_cell cursor-pointer o_field_cell o_list_number o_progressbar_cell" data-tooltip-delay="1000" tabindex="-1" name="progress" t-att-data-progress="record.progress">
                                             <div class="js-progress-content"></div>
                                         </td>
                                         

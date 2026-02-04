@@ -21,9 +21,11 @@
                 <sheet>
                     <group>
                         <field name="allowed_user_ids" invisible="1"/>
+                        <field name="allowed_position_ids" invisible="1"/>
+                        <field name="allowed_department_ids" invisible="1"/>
                         <field name="user_id" domain="[('id', 'in', allowed_user_ids)]"/>
-                        <field name="position_id" string="Employment Types"/>
-                        <field name="department_id"/>
+                        <field name="position_id" string="Employment Types" domain="[('id', 'in', allowed_position_ids)]"/>
+                        <field name="department_id" domain="[('id', 'in', allowed_department_ids)]" readonly="not allowed_department_ids"/>
                         <field name="assigned_by" readonly="1"/>
                     </group>
                 </sheet>
@@ -31,7 +33,7 @@
         </field>
     </record>
 
-    <record id="action_peepl_user_assignment" model="ir.actions.act_window">
+    <record id="action_peepl_user_assignment_new" model="ir.actions.act_window">
         <field name="name">User Assignments</field>
         <field name="res_model">peepl.user.assignment</field>
         <field name="view_mode">list,form</field>
@@ -40,7 +42,7 @@
     <menuitem id="menu_peepl_user_assignment"
               name="User Assignments"
               parent="menu_peepl_weekly_report_configuration"
-              action="action_peepl_user_assignment"
+              action="action_peepl_user_assignment_new"
               sequence="8"
               groups="peepl_weekly_report.group_peepl_manager,peepl_weekly_report.group_peepl_bod"/>
 </odoo>

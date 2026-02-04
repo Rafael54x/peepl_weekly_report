@@ -9,7 +9,9 @@ class PeeplUserAssignment(models.Model):
 
     user_id = fields.Many2one('res.users', string='User', required=True)
     allowed_user_ids = fields.Many2many('res.users', compute='_compute_allowed_users')
-    position_id = fields.Many2one('hr.contract.type', string='Employment Types', required=True)
+    allowed_position_ids = fields.Many2many('hr.contract.type', compute='_compute_allowed_positions')
+    allowed_department_ids = fields.Many2many('hr.department', compute='_compute_allowed_departments')
+    position_id = fields.Many2one('hr.contract.type', string='Employment Type', required=True)
     department_id = fields.Many2one('hr.department', string='Department')
     assigned_by = fields.Many2one('res.users', string='Assigned By', default=lambda self: self.env.user)
     active = fields.Boolean(string='Active', default=True)
@@ -54,10 +56,10 @@ class PeeplUserAssignment(models.Model):
             if current_user.has_group('peepl_weekly_report.group_peepl_bod'):
                 continue
             
-            # Manager can only assign staff to their own department
+            # Manager can assign all positions except Manager to their own department
             elif current_user.has_group('peepl_weekly_report.group_peepl_manager'):
-                if record.position_id.name and 'staff' not in record.position_id.name.lower():
-                    raise ValidationError("Manager can only assign Staff level positions.")
+                if record.position_id.name and 'manager' in record.position_id.name.lower():
+                    raise ValidationError("Manager cannot assign other Manager positions.")
                 
                 # Get current user's department
                 current_assignment = self.search([('user_id', '=', current_user.id), ('active', '=', True)], limit=1)
@@ -128,6 +130,40 @@ class PeeplUserAssignment(models.Model):
                 'message': f'Successfully synced {len(assignments)} user assignments with access groups',
             }
         }
+
+    @api.depends('create_uid')
+    def _compute_allowed_departments(self):
+        for record in self:
+            current_user = self.env.user
+            
+            if current_user.has_group('peepl_weekly_report.group_peepl_bod'):
+                # BOD: all departments
+                record.allowed_department_ids = self.env['hr.department'].search([])
+            elif current_user.has_group('peepl_weekly_report.group_peepl_manager'):
+                # Manager: only their department
+                manager_assignment = self.sudo().search([('user_id', '=', current_user.id), ('active', '=', True)], limit=1)
+                if manager_assignment and manager_assignment.department_id:
+                    record.allowed_department_ids = manager_assignment.department_id
+                else:
+                    record.allowed_department_ids = self.env['hr.department']
+            else:
+                # Staff: no departments
+                record.allowed_department_ids = self.env['hr.department']
+
+    @api.depends('create_uid')
+    def _compute_allowed_positions(self):
+        for record in self:
+            current_user = self.env.user
+            
+            if current_user.has_group('peepl_weekly_report.group_peepl_bod'):
+                # BOD: all positions
+                record.allowed_position_ids = self.env['hr.contract.type'].search([])
+            elif current_user.has_group('peepl_weekly_report.group_peepl_manager'):
+                # Manager: all positions except Manager
+                record.allowed_position_ids = self.env['hr.contract.type'].search([('name', 'not ilike', 'manager')])
+            else:
+                # Staff: no positions (shouldn't have access anyway)
+                record.allowed_position_ids = self.env['hr.contract.type']
 
     @api.depends('create_uid', 'user_id')
     def _compute_allowed_users(self):

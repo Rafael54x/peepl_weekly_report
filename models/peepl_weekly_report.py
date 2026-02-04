@@ -285,16 +285,126 @@ class PeeplWeeklyReport(models.Model):
             assigned_users = self.env['peepl.user.assignment'].search([('active', '=', True)]).mapped('user_id')
             record.allowed_pic_ids = assigned_users
 
+    @api.model
+    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+        """Override to inject department-specific fields in list and form view"""
+        result = super().fields_view_get(view_id, view_type, toolbar, submenu)
+        
+        # Debug logging
+        import logging
+        _logger = logging.getLogger(__name__)
+        _logger.info(f"fields_view_get called: view_type={view_type}, context={self.env.context}")
+        
+        if view_type in ['tree', 'form']:
+            try:
+                dept_id = self.env.context.get('dept_filter')
+                _logger.info(f"Department filter: {dept_id}")
+                
+                if dept_id:
+                    templates = self.env['peepl.field.template'].sudo().search([
+                        ('department_id', '=', dept_id),
+                        ('active', '=', True)
+                    ], order='sequence')
+                    _logger.info(f"Found {len(templates)} templates for dept {dept_id}")
+                    
+                    if templates:
+                        from lxml import etree
+                        doc = etree.fromstring(result['arch'])
+                        
+                        if view_type == 'form':
+                            # Try multiple approaches to inject fields
+                            notebook = doc.xpath('//notebook')
+                            if notebook:
+                                _logger.info("Found notebook, adding page")
+                                page_elem = etree.Element('page')
+                                page_elem.set('string', f'{self.env["hr.department"].browse(dept_id).name} Fields')
+                                
+                                group_elem = etree.Element('group')
+                                for template in templates:
+                                    fname = template._column_name()
+                                    _logger.info(f"Adding field: {fname}")
+                                    field_elem = etree.Element('field')
+                                    field_elem.set('name', fname)
+                                    field_elem.set('string', template.name)
+                                    field_elem.set('placeholder', f'[{template.department_id.name}] {template.name}')
+                                    group_elem.append(field_elem)
+                                
+                                page_elem.append(group_elem)
+                                notebook[0].append(page_elem)
+                            else:
+                                # Fallback: add to sheet
+                                _logger.info("No notebook found, adding to sheet")
+                                sheet = doc.xpath('//sheet')
+                                if sheet:
+                                    group_elem = etree.Element('group')
+                                    group_elem.set('string', f'{self.env["hr.department"].browse(dept_id).name} Fields')
+                                    for template in templates:
+                                        fname = template._column_name()
+                                        field_elem = etree.Element('field')
+                                        field_elem.set('name', fname)
+                                        field_elem.set('string', template.name)
+                                        field_elem.set('placeholder', f'[{template.department_id.name}] {template.name}')
+                                        group_elem.append(field_elem)
+                                    sheet[0].append(group_elem)
+                        
+                        elif view_type == 'tree':
+                            notes_field = doc.xpath('//field[@name="notes"]')
+                            if notes_field:
+                                parent = notes_field[0].getparent()
+                                notes_index = list(parent).index(notes_field[0])
+                                
+                                for i, template in enumerate(templates):
+                                    fname = template._column_name()
+                                    field_elem = etree.Element('field')
+                                    field_elem.set('name', fname)
+                                    field_elem.set('string', template.name)
+                                    field_elem.set('optional', 'show')
+                                    
+                                    parent.insert(notes_index + 1 + i, field_elem)
+                        
+                        result['arch'] = etree.tostring(doc, encoding='unicode')
+                        _logger.info("Updated arch with dynamic fields")
+            except Exception as e:
+                _logger.error(f"Error in fields_view_get: {e}")
+        
+        return result
 
-
-    def action_open_form(self):
-        """Open form view for this record"""
-        self.ensure_one()
+    @api.model
+    def action_weekly_report_with_dept_filter(self):
+        """Action that automatically adds department filter for Manager/Staff users"""
+        current_user = self.env.user
+        
+        # Check if user is BOD - no filter needed
+        if current_user.has_group('peepl_weekly_report.group_peepl_bod'):
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'weekly_report_custom_view',
+                'name': 'Weekly Reports',
+            }
+        
+        # For Manager/Staff - get their department
+        assignment = self.env['peepl.user.assignment'].search([
+            ('user_id', '=', current_user.id),
+            ('active', '=', True)
+        ], limit=1)
+        
+        if assignment and assignment.department_id:
+            dept_id = assignment.department_id.id
+            dept_name = assignment.department_id.name
+            
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'weekly_report_custom_view',
+                'name': f'Weekly Reports - {dept_name}',
+                'context': {
+                    'dept_filter': dept_id,
+                    'dept_name': dept_name,
+                }
+            }
+        
+        # Fallback - no department found
         return {
-            'type': 'ir.actions.act_window',
-            'name': f'Weekly Report - {self.project_task}',
-            'res_model': 'peepl.weekly.report',
-            'view_mode': 'form',
-            'res_id': self.id,
-            'target': 'current',
+            'type': 'ir.actions.client',
+            'tag': 'weekly_report_custom_view',
+            'name': 'Weekly Reports',
         }
