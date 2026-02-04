@@ -1,9 +1,55 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, api
+from odoo import models, api, fields
 
 class ResUsers(models.Model):
     _inherit = 'res.users'
+    
+    weekly_report_access = fields.Selection([
+        ('none', 'No Access'),
+        ('staff', 'Staff'),
+        ('manager', 'Manager'),
+        ('bod', 'BOD')
+    ], string='Weekly Report Access', compute='_compute_weekly_access', inverse='_set_weekly_access')
+    
+    def _compute_weekly_access(self):
+        for user in self:
+            if user.has_group('peepl_weekly_report.group_peepl_bod'):
+                user.weekly_report_access = 'bod'
+            elif user.has_group('peepl_weekly_report.group_peepl_manager'):
+                user.weekly_report_access = 'manager'
+            elif user.has_group('peepl_weekly_report.group_peepl_staff'):
+                user.weekly_report_access = 'staff'
+            else:
+                user.weekly_report_access = 'none'
+    
+    def _set_weekly_access(self):
+        for user in self:
+            # Remove all groups
+            groups_to_remove = [
+                'peepl_weekly_report.group_peepl_staff',
+                'peepl_weekly_report.group_peepl_manager', 
+                'peepl_weekly_report.group_peepl_bod'
+            ]
+            for group_xml_id in groups_to_remove:
+                try:
+                    group = self.env.ref(group_xml_id)
+                    user.write({'groups_id': [(3, group.id)]})
+                except:
+                    pass
+            
+            # Add selected group
+            if user.weekly_report_access != 'none':
+                group_map = {
+                    'staff': 'peepl_weekly_report.group_peepl_staff',
+                    'manager': 'peepl_weekly_report.group_peepl_manager',
+                    'bod': 'peepl_weekly_report.group_peepl_bod'
+                }
+                try:
+                    group = self.env.ref(group_map[user.weekly_report_access])
+                    user.write({'groups_id': [(4, group.id)]})
+                except:
+                    pass
 
     @api.model
     def name_search(self, name='', domain=None, operator='ilike', limit=100):
