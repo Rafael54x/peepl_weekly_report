@@ -95,7 +95,7 @@ export class PeeplDashboard extends Component {
         this.state.picData = await this.orm.searchRead(
             "peepl.pic.overview",
             [["user_id", "in", userIds]],
-            ["user_id", "position", "total_tasks", "completed", "in_progress", "not_started", "delayed", "plan", "overdue"]
+            ["user_id", "job_position", "total_tasks", "completed", "in_progress", "not_started", "delayed", "plan", "overdue"]
         );
         
         // Load department
@@ -113,7 +113,7 @@ export class PeeplDashboard extends Component {
         this.state.picData = await this.orm.searchRead(
             "peepl.pic.overview",
             [],
-            ["user_id", "position", "total_tasks", "completed", "in_progress", "not_started", "delayed", "plan", "overdue"]
+            ["user_id", "job_position", "total_tasks", "completed", "in_progress", "not_started", "delayed", "plan", "overdue"]
         );
         
         // Load all departments (filtered by record rules)
@@ -294,7 +294,7 @@ export class PeeplDashboard extends Component {
         this.state.filteredPicData = this.state.picData.filter(pic => {
             const matchName = pic.user_id[1].toLowerCase().includes(query);
             const matchDept = !dept || pic.department_name === dept;
-            const matchRole = !role || pic.position === role;
+            const matchRole = !role || pic.job_position === role;
             const matchStatus = !status || this.hasStatus(pic, status);
             return matchName && matchDept && matchRole && matchStatus;
         });
@@ -321,7 +321,7 @@ export class PeeplDashboard extends Component {
     }
 
     get uniqueRoles() {
-        return [...new Set(this.state.picData.map(p => p.position).filter(r => r && r !== 'No Position'))];
+        return [...new Set(this.state.picData.map(p => p.job_position).filter(r => r && r !== 'No Position'))];
     }
 
     get paginatedData() {

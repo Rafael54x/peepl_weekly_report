@@ -71,12 +71,12 @@ class PicOverviewCustomView extends Component {
                     "|", "|",
                     ["user_id.name", "ilike", this.state.searchTerm],
                     ["department_id.name", "ilike", this.state.searchTerm],
-                    ["position", "ilike", this.state.searchTerm]
+                    ["job_position", "ilike", this.state.searchTerm]
                 ]);
             }
             
             const fields = [
-                "user_id", "department_id", "position", "total_tasks", 
+                "user_id", "department_id", "job_position", "total_tasks", 
                 "completed", "in_progress", "not_started", "delayed", 
                 "plan", "overdue", "avg_progress"
             ];
@@ -270,7 +270,7 @@ class PicOverviewCustomView extends Component {
             const records = await this.orm.searchRead(
                 "peepl.pic.overview",
                 domain,
-                ["user_id", "department_id", "position", "total_tasks", "completed", "in_progress", "not_started", "delayed", "plan", "overdue", "avg_progress"],
+                ["user_id", "department_id", "job_position", "total_tasks", "completed", "in_progress", "not_started", "delayed", "plan", "overdue", "avg_progress"],
                 { 
                     limit: this.state.recordsPerPage,
                     offset: (this.state.currentPage - 1) * this.state.recordsPerPage

@@ -146,9 +146,9 @@
                                                     Department 
                                                     <i t-att-class="'fa fa-sort' + (state.sortField === 'department_name' ? (state.sortOrder === 'asc' ? '-up' : '-down') : '')"></i>
                                                 </th>
-                                                <th class="sortable" t-on-click="() => this.sortData('position')">
+                                                <th class="sortable" t-on-click="() => this.sortData('job_position')">
                                                     Employment Types 
-                                                    <i t-att-class="'fa fa-sort' + (state.sortField === 'position' ? (state.sortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                    <i t-att-class="'fa fa-sort' + (state.sortField === 'job_position' ? (state.sortOrder === 'asc' ? '-up' : '-down') : '')"></i>
                                                 </th>
                                                 <th class="sortable" t-on-click="() => this.sortData('total_tasks')">
                                                     Total 
@@ -185,7 +185,7 @@
                                                 <tr>
                                                     <td><t t-esc="pic.user_id[1]"/></td>
                                                     <td><t t-esc="pic.department_name"/></td>
-                                                    <td><span class="badge badge-role"><t t-esc="pic.position || 'No Position'"/></span></td>
+                                                    <td><span class="badge badge-role"><t t-esc="pic.job_position || 'No Position'"/></span></td>
                                                     <td><span class="badge badge-number"><t t-esc="pic.total_tasks"/></span></td>
                                                     <td><span class="badge badge-number"><t t-esc="pic.completed"/></span></td>
                                                     <td><span class="badge badge-number"><t t-esc="pic.in_progress"/></span></td>

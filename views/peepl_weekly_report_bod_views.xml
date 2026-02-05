@@ -110,7 +110,7 @@
                                 <field name="user_assignment_ids" context="{'default_department_id': department_id}" domain="[('department_id', '=', department_id)]">
                                     <list editable="bottom">
                                         <field name="user_id"/>
-                                        <field name="position_id" string="Employment Types"/>
+                                        <field name="job_id" string="Job Position"/>
                                         <field name="assigned_by" readonly="1"/>
                                     </list>
                                 </field>

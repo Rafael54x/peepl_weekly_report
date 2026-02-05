@@ -8,7 +8,7 @@ class PeeplPicOverview(models.Model):
 
     user_id = fields.Many2one('res.users', string='User', required=True)
     department_id = fields.Many2one('hr.department', string='Department')
-    position = fields.Char(string='Employment Types')
+    job_position = fields.Char(string='Job Position')
     total_tasks = fields.Integer(string='Total Tasks')
     completed = fields.Integer(string='Completed')
     in_progress = fields.Integer(string='In Progress')
@@ -19,8 +19,22 @@ class PeeplPicOverview(models.Model):
     avg_progress = fields.Float(string='Avg Progress (%)')
 
     @api.model
+    def _migrate_position_to_job_position(self):
+        """Migrate old position field to job_position"""
+        try:
+            # Drop old column if exists
+            self.env.cr.execute("ALTER TABLE peepl_pic_overview DROP COLUMN IF EXISTS position")
+            # Clear all existing records
+            self.env.cr.execute("DELETE FROM peepl_pic_overview")
+            self.env.cr.commit()
+        except Exception as e:
+            print(f"Migration error: {e}")
+    
+    @api.model
     def update_all_stats(self):
         """Update all PIC overview statistics"""
+        # Run migration first
+        self._migrate_position_to_job_position()
         # Get all users with weekly reports
         users_with_reports = self.env['peepl.weekly.report'].search([]).mapped('pic_id')
         
@@ -39,7 +53,7 @@ class PeeplPicOverview(models.Model):
             self.create({
                 'user_id': user.id,
                 'department_id': assignment.department_id.id if assignment and assignment.department_id else False,
-                'position': assignment.position_id.name if assignment and assignment.position_id else 'No Assignment',
+                'job_position': assignment.job_id.name if assignment and assignment.job_id else 'No Assignment',
                 'total_tasks': len(reports),
                 'completed': len(reports.filtered(lambda r: r.status == 'completed')),
                 'in_progress': len(reports.filtered(lambda r: r.status == 'in_progress')),

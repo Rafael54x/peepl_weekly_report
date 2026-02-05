@@ -6,7 +6,7 @@
         <field name="arch" type="xml">
             <list>
                 <field name="user_id"/>
-                <field name="position_id" string="Employment Types"/>
+                <field name="job_id" string="Job Position"/>
                 <field name="department_id"/>
                 <field name="assigned_by"/>
             </list>
@@ -21,10 +21,10 @@
                 <sheet>
                     <group>
                         <field name="allowed_user_ids" invisible="1"/>
-                        <field name="allowed_position_ids" invisible="1"/>
+                        <field name="allowed_job_ids" invisible="1"/>
                         <field name="allowed_department_ids" invisible="1"/>
                         <field name="user_id" domain="[('id', 'in', allowed_user_ids)]"/>
-                        <field name="position_id" string="Employment Types" domain="[('id', 'in', allowed_position_ids)]"/>
+                        <field name="job_id" string="Job Position" domain="[('id', 'in', allowed_job_ids)]"/>
                         <field name="department_id" domain="[('id', 'in', allowed_department_ids)]" readonly="not allowed_department_ids"/>
                         <field name="assigned_by" readonly="1"/>
                     </group>

@@ -9,9 +9,9 @@ class PeeplUserAssignment(models.Model):
 
     user_id = fields.Many2one('res.users', string='User', required=True)
     allowed_user_ids = fields.Many2many('res.users', compute='_compute_allowed_users')
-    allowed_position_ids = fields.Many2many('hr.contract.type', compute='_compute_allowed_positions')
+    allowed_job_ids = fields.Many2many('hr.job', compute='_compute_allowed_jobs')
     allowed_department_ids = fields.Many2many('hr.department', compute='_compute_allowed_departments')
-    position_id = fields.Many2one('hr.contract.type', string='Employment Type', required=True)
+    job_id = fields.Many2one('hr.job', string='Job Position', required=True)
     department_id = fields.Many2one('hr.department', string='Department')
     assigned_by = fields.Many2one('res.users', string='Assigned By', default=lambda self: self.env.user)
     active = fields.Boolean(string='Active', default=True)
@@ -38,18 +38,18 @@ class PeeplUserAssignment(models.Model):
             if existing_assignment:
                 self.department_id = existing_assignment.department_id.id
 
-    @api.onchange('position_id')
-    def _onchange_position_id(self):
-        if self.position_id and self.position_id.name and 'bod' in self.position_id.name.lower():
+    @api.onchange('job_id')
+    def _onchange_job_id(self):
+        if self.job_id and self.job_id.name and 'bod' in self.job_id.name.lower():
             self.department_id = False
 
-    @api.constrains('user_id', 'position_id', 'department_id')
+    @api.constrains('user_id', 'job_id', 'department_id')
     def _check_assignment_rules(self):
         for record in self:
             current_user = self.env.user
             
             # Check if department is required (not BOD)
-            if record.position_id and record.position_id.name and 'bod' not in record.position_id.name.lower() and not record.department_id:
+            if record.job_id and record.job_id.name and 'bod' not in record.job_id.name.lower() and not record.department_id:
                 raise ValidationError("Department is required for non-BOD positions.")
             
             # BOD can assign anyone to any department
@@ -58,7 +58,7 @@ class PeeplUserAssignment(models.Model):
             
             # Manager can assign all positions except Manager to their own department
             elif current_user.has_group('peepl_weekly_report.group_peepl_manager'):
-                if record.position_id.name and 'manager' in record.position_id.name.lower():
+                if record.job_id.name and 'manager' in record.job_id.name.lower():
                     raise ValidationError("Manager cannot assign other Manager positions.")
                 
                 # Get current user's department
@@ -72,7 +72,7 @@ class PeeplUserAssignment(models.Model):
     def write(self, vals):
         result = super(PeeplUserAssignment, self).write(vals)
         # Trigger PIC overview update
-        if 'user_id' in vals or 'position_id' in vals or 'department_id' in vals or 'active' in vals:
+        if 'user_id' in vals or 'job_id' in vals or 'department_id' in vals or 'active' in vals:
             self._update_pic_overview()
         return result
 
@@ -83,9 +83,9 @@ class PeeplUserAssignment(models.Model):
         
         for vals in vals_list:
             # Auto-set department from user's HR employee if not BOD
-            if vals.get('user_id') and vals.get('position_id'):
-                position = self.env['hr.contract.type'].browse(vals['position_id'])
-                if position.name and 'bod' in position.name.lower():
+            if vals.get('user_id') and vals.get('job_id'):
+                job = self.env['hr.job'].browse(vals['job_id'])
+                if job.name and 'bod' in job.name.lower():
                     vals['department_id'] = False
                 elif not vals.get('department_id'):
                     # Try to get department from hr.employee
@@ -151,19 +151,19 @@ class PeeplUserAssignment(models.Model):
                 record.allowed_department_ids = self.env['hr.department']
 
     @api.depends('create_uid')
-    def _compute_allowed_positions(self):
+    def _compute_allowed_jobs(self):
         for record in self:
             current_user = self.env.user
             
             if current_user.has_group('peepl_weekly_report.group_peepl_bod'):
-                # BOD: all positions
-                record.allowed_position_ids = self.env['hr.contract.type'].search([])
+                # BOD: all jobs
+                record.allowed_job_ids = self.env['hr.job'].search([])
             elif current_user.has_group('peepl_weekly_report.group_peepl_manager'):
-                # Manager: all positions except Manager
-                record.allowed_position_ids = self.env['hr.contract.type'].search([('name', 'not ilike', 'manager')])
+                # Manager: all jobs except Manager and BOD
+                record.allowed_job_ids = self.env['hr.job'].search([('name', 'not ilike', 'manager'), ('name', 'not ilike', 'bod')])
             else:
-                # Staff: no positions (shouldn't have access anyway)
-                record.allowed_position_ids = self.env['hr.contract.type']
+                # Staff: no jobs (shouldn't have access anyway)
+                record.allowed_job_ids = self.env['hr.job']
 
     @api.depends('create_uid', 'user_id')
     def _compute_allowed_users(self):

@@ -14,9 +14,9 @@ access_hr_department_bod,access.hr.department.bod,hr.model_hr_department,group_p
 access_hr_employee_staff,access.hr.employee.staff,hr.model_hr_employee,group_peepl_staff,1,0,0,0
 access_hr_employee_manager,access.hr.employee.manager,hr.model_hr_employee,group_peepl_manager,1,0,0,0
 access_hr_employee_bod,access.hr.employee.bod,hr.model_hr_employee,group_peepl_bod,1,1,1,1
-access_hr_contract_type_staff,access.hr.contract.type.staff,hr.model_hr_contract_type,group_peepl_staff,1,0,0,0
-access_hr_contract_type_manager,access.hr.contract.type.manager,hr.model_hr_contract_type,group_peepl_manager,1,0,0,0
-access_hr_contract_type_bod,access.hr.contract.type.bod,hr.model_hr_contract_type,group_peepl_bod,1,1,1,1
+access_hr_job_staff,access.hr.job.staff,hr.model_hr_job,group_peepl_staff,1,0,0,0
+access_hr_job_manager,access.hr.job.manager,hr.model_hr_job,group_peepl_manager,1,0,0,0
+access_hr_job_bod,access.hr.job.bod,hr.model_hr_job,group_peepl_bod,1,1,1,1
 access_peepl_user_assignment_staff,access.peepl.user.assignment.staff,model_peepl_user_assignment,group_peepl_staff,1,1,1,1
 access_peepl_user_assignment_manager,access.peepl.user.assignment.manager,model_peepl_user_assignment,group_peepl_manager,1,1,1,1
 access_peepl_user_assignment_bod,access.peepl.user.assignment.bod,model_peepl_user_assignment,group_peepl_bod,1,1,1,1

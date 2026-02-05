@@ -108,11 +108,11 @@
                                         </div>
                                     </th>
                                     
-                                    <!-- Position Column -->
-                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="position" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 130px;" t-on-click="(ev) => this.onSort('position')">
+                                    <!-- Job Position Column -->
+                                    <th data-tooltip-delay="1000" tabindex="-1" data-name="job_position" class="align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto" style="width: 130px;" t-on-click="(ev) => this.onSort('job_position')">
                                         <div class="d-flex align-items-center">
-                                            <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1">Employment Types</span>
-                                            <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('position')}} opacity-0 opacity-100-hover"></i>
+                                            <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1">Job Position</span>
+                                            <i t-attf-class="o_list_sortable_icon fa {{getSortIcon('job_position')}} opacity-0 opacity-100-hover"></i>
                                         </div>
                                     </th>
                                     
@@ -192,8 +192,8 @@
                                         <!-- Department -->
                                         <td class="o_data_cell o_field_cell o_list_many2one" data-tooltip-delay="1000" tabindex="-1" name="department_id" t-att-data-tooltip="record.department_id and record.department_id[1]" t-esc="record.department_id and record.department_id[1]"></td>
                                         
-                                        <!-- Position -->
-                                        <td class="o_data_cell o_field_cell o_list_char" data-tooltip-delay="1000" tabindex="-1" name="position" t-att-data-tooltip="record.position || ''" t-esc="record.position || ''"></td>
+                                        <!-- Job Position -->
+                                        <td class="o_data_cell o_field_cell o_list_char" data-tooltip-delay="1000" tabindex="-1" name="job_position" t-att-data-tooltip="record.job_position || ''" t-esc="record.job_position || ''"></td>
                                         
                                         <!-- Total Tasks -->
                                         <td class="o_data_cell o_field_cell o_list_number text-center" data-tooltip-delay="1000" tabindex="-1" name="total_tasks" t-esc="record.total_tasks"></td>
