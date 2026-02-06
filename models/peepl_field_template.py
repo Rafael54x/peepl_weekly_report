@@ -22,6 +22,18 @@ class PeeplFieldTemplate(models.Model):
     ], string='Field Type', default='char', required=True)
     selection_values = fields.Text('Selection Values', help='One per line for dropdown')
     relation_model = fields.Char('Related Model', help='e.g. res.partner')
+    anchor_field = fields.Selection([
+        ('pic_id', 'PIC'),
+        ('project_task', 'Project/Task'),
+        ('status', 'Status'),
+        ('progress', 'Progress'),
+        ('deadline', 'Deadline'),
+        ('notes', 'Notes'),
+    ], string='Position After', default='pic_id', required=True)
+    position = fields.Selection([
+        ('before', 'Before'),
+        ('after', 'After'),
+    ], string='Insert', default='before', required=True)
 
     def _column_name(self):
         """Return the field name for this template (e.g., 'x_field1_value')"""
@@ -241,35 +253,39 @@ class PeeplFieldTemplateMixin(models.AbstractModel):
                 templates = self.env['peepl.field.template'].search([('active', '=', True)], order='sequence')
                 
                 if view_type == 'list':
-                    notes_node = arch.find('.//field[@name="pic_id"]')
-                    if notes_node is not None:
-                        for template in templates:
-                            fname = template._column_name()
-                            # Only add if field exists in model
-                            if fname not in self._fields:
-                                continue
-                            
-                            field_attrs = {
-                                'name': fname,
-                                'optional': 'show',
-                                'width': '200px',
-                            }
-                            
-                            # Add widget based on field type
-                            if template.field_type == 'text':
-                                field_attrs['widget'] = 'text'
-                            elif template.field_type == 'boolean':
-                                field_attrs['widget'] = 'boolean_toggle'
-                            elif template.field_type == 'date':
-                                field_attrs['widget'] = 'date'
-                            elif template.field_type == 'datetime':
-                                field_attrs['widget'] = 'datetime'
-                            elif template.field_type == 'float':
-                                field_attrs['widget'] = 'float'
-                            elif template.field_type == 'integer':
-                                field_attrs['widget'] = 'integer'
-                            
-                            notes_node.addprevious(E.field(**field_attrs))
+                    for template in templates:
+                        fname = template._column_name()
+                        if fname not in self._fields:
+                            continue
+                        
+                        anchor_node = arch.find(f'.//field[@name="{template.anchor_field}"]')
+                        if anchor_node is None:
+                            continue
+                        
+                        field_attrs = {
+                            'name': fname,
+                            'optional': 'show',
+                            'width': '200px',
+                        }
+                        
+                        if template.field_type == 'text':
+                            field_attrs['widget'] = 'text'
+                        elif template.field_type == 'boolean':
+                            field_attrs['widget'] = 'boolean_toggle'
+                        elif template.field_type == 'date':
+                            field_attrs['widget'] = 'date'
+                        elif template.field_type == 'datetime':
+                            field_attrs['widget'] = 'datetime'
+                        elif template.field_type == 'float':
+                            field_attrs['widget'] = 'float'
+                        elif template.field_type == 'integer':
+                            field_attrs['widget'] = 'integer'
+                        
+                        new_field = E.field(**field_attrs)
+                        if template.position == 'before':
+                            anchor_node.addprevious(new_field)
+                        else:
+                            anchor_node.addnext(new_field)
                 
                 elif view_type == 'form':
                     groups = arch.findall('.//group')

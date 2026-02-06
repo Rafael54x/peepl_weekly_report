@@ -23,8 +23,6 @@ Comprehensive weekly reporting system for Odoo 19 with advanced project manageme
 - Sequential numbering system (global database + department-based display)
 - Status tracking: Not Started, In Progress, Completed, Delayed, Plan, Overdue
 - Progress percentage tracking (0-100%)
-- Client and project association
-- Request form reference tracking
 - Notes and detailed descriptions (HTML editor)
 - Date range tracking (start date, end date, deadline)
 - Automatic overdue status detection via cron job
@@ -148,9 +146,7 @@ Comprehensive weekly reporting system for Odoo 19 with advanced project manageme
 - `name` - Global sequential number (e.g., WR001, WR002)
 - `display_number` - Department-based sequential number (e.g., 1, 2, 3)
 - `pic_id` - Person in charge (user)
-- `client_id` - Client/partner
 - `project_task` - Project/task name
-- `request_form` - Request form reference
 - `status` - Task status (selection)
 - `progress` - Completion percentage (0-100)
 - `deadline` - Task deadline
@@ -408,7 +404,6 @@ Related Model: res.partner
 2. Click Create
 3. Fill in:
    - **PIC:** Auto-filled with your name
-   - **Client:** Select client
    - **Project:** Enter project name
    - **Task:** Describe the task
    - **Status:** Select current status
@@ -671,15 +666,14 @@ WR005           | Sales      | 2
 1. Staff logs in → Sees only own reports
 2. Click "Create" → Form opens
 3. PIC auto-filled with staff name (readonly)
-4. Select Client from dropdown
-5. Enter Project/Task name
-6. Set Deadline date
-7. Select Status (default: Not Started)
-8. Set Progress (0-100%)
-9. Fill custom fields (if any for department)
-10. Add Notes (HTML editor)
-11. Click Save → Number auto-generated
-12. PIC Overview auto-updates
+4. Enter Project/Task name
+5. Set Deadline date
+6. Select Status (default: Not Started)
+7. Set Progress (0-100%)
+8. Fill custom fields (if any for department)
+9. Add Notes (HTML editor)
+10. Click Save → Number auto-generated
+11. PIC Overview auto-updates
 ```
 
 ### Workflow 2: Manager Reviewing Department Reports

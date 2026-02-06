@@ -8,7 +8,6 @@
                 <field name="display_number"/>
                 <field name="name"/>
                 <field name="pic_id"/>
-                <field name="client_id"/>
                 <field name="project_task"/>
                 <field name="deadline"/>
                 <field name="status"/>
@@ -42,10 +41,6 @@
                                         <span class="text-muted ml8" t-if="record.department_id.value">
                                             (<field name="department_id"/>)
                                         </span>
-                                    </div>
-                                    <div class="mb4" t-if="record.client_id.value">
-                                        <i class="fa fa-building text-info mr8"></i>
-                                        <strong>Client:</strong> <field name="client_id"/>
                                     </div>
                                     <div class="mb4" t-if="record.deadline.value">
                                         <i class="fa fa-calendar text-warning mr8"></i>
@@ -82,9 +77,7 @@
                 <field name="name" column_invisible="1"/>
                 <field name="pic_id" optional="show"/>
                 <field name="department_id" optional="hide"/>
-                <field name="client_id" optional="show"/>
-                <field name="request_form" optional="show"/>
-                <field name="project_task" width="250px" optional="show"/>
+                <field name="project_task" width="250px" optional="show" widget="text"/>
                 <field name="deadline" optional="show"/>
                 <field name="status" optional="show"/>
                 <field name="progress" widget="progressbar" width="100px" optional="show"/>
@@ -105,7 +98,7 @@
                     <div class="oe_title">
                         <label for="project_task" string="Project Task"/>
                         <h1>
-                            <field name="project_task" placeholder="e.g. Website Development" class="o_text_overflow"/>
+                            <field name="project_task" placeholder="e.g. Website Development" widget="text"/>
                         </h1>
                     </div>
                     
@@ -115,8 +108,6 @@
                             <field name="allowed_pic_ids" invisible="1"/>
                             <field name="pic_id" widget="many2one_avatar_user" domain="[('id', 'in', allowed_pic_ids)]" options="{'no_create': True}"/>
                             <field name="department_id" readonly="1"/>
-                            <field name="client_id" options="{'no_create_edit': True}"/>
-                            <field name="request_form"/>
                         </group>
                         <group string="Timeline &amp; Progress">
                             <field name="status"/>

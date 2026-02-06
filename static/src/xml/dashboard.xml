@@ -319,10 +319,6 @@
                                                         PIC 
                                                         <i t-att-class="'fa fa-sort' + (state.deptSortField === 'pic_id' ? (state.deptSortOrder === 'asc' ? '-up' : '-down') : '')"></i>
                                                     </th>
-                                                    <th class="sortable" t-on-click="() => this.sortDeptData('client_id')">
-                                                        Client 
-                                                        <i t-att-class="'fa fa-sort' + (state.deptSortField === 'client_id' ? (state.deptSortOrder === 'asc' ? '-up' : '-down') : '')"></i>
-                                                    </th>
                                                     <th class="sortable" t-on-click="() => this.sortDeptData('project_task')">
                                                         Project/Task 
                                                         <i t-att-class="'fa fa-sort' + (state.deptSortField === 'project_task' ? (state.deptSortOrder === 'asc' ? '-up' : '-down') : '')"></i>
@@ -347,7 +343,6 @@
                                                     <tr>
                                                         <td><t t-esc="report.name"/></td>
                                                         <td><t t-esc="report.pic_id[1]"/></td>
-                                                        <td><t t-esc="report.client_id ? report.client_id[1] : '-'"/></td>
                                                         <td><t t-esc="report.project_task"/></td>
                                                         <td><t t-esc="report.deadline || '-'"/></td>
                                                         <td>

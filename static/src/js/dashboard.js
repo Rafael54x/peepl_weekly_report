@@ -373,7 +373,7 @@ export class PeeplDashboard extends Component {
             "search_read",
             [[["pic_id", "in", userIds]]],
             {
-                fields: ["name", "pic_id", "client_id", "project_task", "deadline", "status", "progress", "request_form", "notes"]
+                fields: ["name", "pic_id", "project_task", "deadline", "status", "progress", "notes"]
             }
         );
         
@@ -491,9 +491,6 @@ export class PeeplDashboard extends Component {
             if (field === 'pic_id') {
                 aVal = a.pic_id[1];
                 bVal = b.pic_id[1];
-            } else if (field === 'client_id') {
-                aVal = a.client_id ? a.client_id[1] : '';
-                bVal = b.client_id ? b.client_id[1] : '';
             }
             
             if (typeof aVal === 'string') {

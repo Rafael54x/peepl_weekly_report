@@ -68,9 +68,7 @@ class PeeplWeeklyReport(models.Model):
     allowed_user_ids = fields.Many2many('res.users', compute='_compute_allowed_users')
     department_filter_ids = fields.Many2many('hr.department', string='Department Filter', compute='_compute_department_filter')
     department_id = fields.Many2one('hr.department', string='Department', compute='_compute_department', store=True)
-    client_id = fields.Many2one('res.partner', string='Client', required=True)
-    request_form = fields.Char(string='Request Form')
-    project_task = fields.Char(string='Project / Task', required=True)
+    project_task = fields.Text(string='Project / Task', required=True)
     deadline = fields.Date(string='Deadline')
     status = fields.Selection([
         ('completed', 'Completed'),
@@ -103,8 +101,9 @@ class PeeplWeeklyReport(models.Model):
     def _check_pic_department(self):
         for record in self:
             current_user = self.env.user
-            if current_user.has_group('peepl_weekly_report.group_peepl_manager'):
-                # Manager: can only assign to users in same department
+            if current_user.has_group('peepl_weekly_report.group_peepl_bod'):
+                continue
+            elif current_user.has_group('peepl_weekly_report.group_peepl_manager'):
                 manager_assignment = self.env['peepl.user.assignment'].search([
                     ('user_id', '=', current_user.id),
                     ('active', '=', True)
@@ -119,7 +118,6 @@ class PeeplWeeklyReport(models.Model):
                     if manager_assignment.department_id != pic_assignment.department_id:
                         raise ValidationError(f"Manager can only assign tasks to users in the same department ({manager_assignment.department_id.name}).")
             elif current_user.has_group('peepl_weekly_report.group_peepl_staff'):
-                # Staff: can only assign to themselves
                 if record.pic_id != current_user:
                     raise ValidationError("Staff can only assign tasks to themselves.")
     def _get_next_number(self):

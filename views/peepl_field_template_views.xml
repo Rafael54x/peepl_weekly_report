@@ -35,6 +35,8 @@
                             <field name="department_id" domain="[('id', 'in', allowed_department_ids)]"/>
                         </group>
                         <group>
+                            <field name="anchor_field"/>
+                            <field name="position"/>
                             <field name="description"/>
                         </group>
                     </group>

@@ -9,9 +9,7 @@
                 <field name="name" column_invisible="1"/>
                 <field name="pic_id" optional="show"/>
                 <field name="department_id" optional="hide"/>
-                <field name="client_id" optional="show"/>
-                <field name="request_form" optional="show"/>
-                <field name="project_task" width="250px" optional="show"/>
+                <field name="project_task" width="250px" optional="show" widget="text"/>
                 <field name="deadline" optional="show"/>
                 <field name="status" optional="show"/>
                 <field name="progress" widget="progressbar" width="100px" optional="show"/>

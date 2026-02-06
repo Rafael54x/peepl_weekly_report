@@ -104,6 +104,66 @@ class WeeklyReportCustomView extends Component {
             this.preserveUrlParams();
         });
     }
+
+    injectDynamicColumns() {
+        setTimeout(() => {
+            // Remove existing dynamic columns first
+            document.querySelectorAll('th[data-name^="x_field"], td[name^="x_field"]').forEach(el => el.remove());
+            
+            const thead = document.querySelector('.o_list_table thead tr');
+            const tbody = document.querySelector('.o_list_table tbody');
+            
+            if (!thead || !tbody) return;
+            
+            this.state.dynamicFields.forEach(field => {
+                const anchorTh = thead.querySelector(`th[data-anchor="${field.anchor}"]`);
+                if (!anchorTh) return;
+                
+                const th = document.createElement('th');
+                th.setAttribute('data-tooltip-delay', '1000');
+                th.setAttribute('tabindex', '-1');
+                th.setAttribute('data-name', field.name);
+                th.className = 'align-middle o_column_sortable position-relative cursor-pointer opacity-trigger-hover w-print-auto';
+                th.style.width = '150px';
+                th.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <span class="d-block min-w-0 text-truncate flex-grow-1 flex-shrink-1">${field.label}</span>
+                        <i class="o_list_sortable_icon fa fa-sort opacity-0 opacity-100-hover"></i>
+                    </div>
+                `;
+                th.addEventListener('click', () => this.onSort(field.name));
+                
+                if (field.position === 'before') {
+                    anchorTh.parentNode.insertBefore(th, anchorTh);
+                } else {
+                    anchorTh.parentNode.insertBefore(th, anchorTh.nextSibling);
+                }
+                
+                tbody.querySelectorAll('tr').forEach(tr => {
+                    const anchorTd = tr.querySelector(`td[data-anchor="${field.anchor}"]`);
+                    if (!anchorTd) return;
+                    
+                    const td = document.createElement('td');
+                    td.className = 'o_data_cell cursor-pointer o_field_cell o_list_char';
+                    td.setAttribute('data-tooltip-delay', '1000');
+                    td.setAttribute('tabindex', '-1');
+                    td.setAttribute('name', field.name);
+                    
+                    const recordId = tr.getAttribute('data-id')?.replace('datapoint_', '');
+                    const record = this.state.records.find(r => r.id == recordId);
+                    const value = record?.[field.name] || '';
+                    td.textContent = value;
+                    td.setAttribute('data-tooltip', value);
+                    
+                    if (field.position === 'before') {
+                        anchorTd.parentNode.insertBefore(td, anchorTd);
+                    } else {
+                        anchorTd.parentNode.insertBefore(td, anchorTd.nextSibling);
+                    }
+                });
+            });
+        }, 100);
+    }
     
 
     async loadUserRole() {
@@ -236,7 +296,7 @@ class WeeklyReportCustomView extends Component {
                 const templates = await this.orm.searchRead(
                     "peepl.field.template",
                     [["department_id", "=", deptId], ["active", "=", true]],
-                    ["name", "field_type"],
+                    ["name", "field_type", "anchor_field", "position", "sequence"],
                     { order: "sequence" }
                 );
                 console.log("loadDynamicFields - templates found:", templates);
@@ -244,7 +304,10 @@ class WeeklyReportCustomView extends Component {
                 this.state.dynamicFields = templates.map(t => ({
                     name: `x_field${t.id}_value`,
                     label: t.name,
-                    type: t.field_type
+                    type: t.field_type,
+                    anchor: t.anchor_field,
+                    position: t.position,
+                    sequence: t.sequence
                 }));
                 console.log("loadDynamicFields - dynamicFields:", this.state.dynamicFields);
             } else {
@@ -269,7 +332,7 @@ class WeeklyReportCustomView extends Component {
             
             // Load basic fields first
             const basicFields = [
-                "display_number", "pic_id", "client_id", "request_form", 
+                "display_number", "pic_id", 
                 "project_task", "deadline", "status", "progress", "notes", "department_id"
             ];
             
@@ -322,6 +385,7 @@ class WeeklyReportCustomView extends Component {
             this.state.totalRecords = totalCount;
             
             setTimeout(() => this.renderNotesContent(), 50);
+            setTimeout(() => this.injectDynamicColumns(), 100);
         } catch (error) {
             console.error("Error loading records:", error);
             this.state.records = [];

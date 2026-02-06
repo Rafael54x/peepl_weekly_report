@@ -33,10 +33,13 @@ class PeeplPicOverview(models.Model):
     @api.model
     def update_all_stats(self):
         """Update all PIC overview statistics"""
-        # Get all users with weekly reports (respects record rules)
         users_with_reports = self.env['peepl.weekly.report'].search([]).mapped('pic_id')
         
-        # Update or create records for each user
+        all_overview_records = self.search([])
+        users_to_keep = set(users_with_reports.ids)
+        records_to_delete = all_overview_records.filtered(lambda r: r.user_id.id not in users_to_keep)
+        records_to_delete.unlink()
+        
         for user in users_with_reports:
             assignment = self.env['peepl.user.assignment'].sudo().search([
                 ('user_id', '=', user.id),
@@ -44,8 +47,6 @@ class PeeplPicOverview(models.Model):
             ], limit=1)
             
             reports = self.env['peepl.weekly.report'].search([('pic_id', '=', user.id)])
-            
-            # Check if record exists (respects record rules)
             existing = self.search([('user_id', '=', user.id)], limit=1)
             
             vals = {
