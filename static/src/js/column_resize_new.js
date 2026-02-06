@@ -15,7 +15,7 @@ patch(ListRenderer.prototype, {
     },
     
     _addColumnResizers() {
-        const headers = this.el.querySelectorAll('.o_list_table th:not(:last-child)');
+        const headers = this.el.querySelectorAll('.peepl_weekly_report_list th:not(:last-child)');
         
         headers.forEach((th, index) => {
             if (th.querySelector('.col-resizer')) return;
@@ -46,7 +46,7 @@ patch(ListRenderer.prototype, {
                 th.style.minWidth = newWidth + 'px';
                 
                 // Apply width to all td in same column
-                const table = th.closest('.o_list_table');
+                const table = th.closest('.peepl_weekly_report_list');
                 if (table) {
                     table.querySelectorAll(`tr td:nth-child(${index + 1})`).forEach(td => {
                         td.style.width = newWidth + 'px';

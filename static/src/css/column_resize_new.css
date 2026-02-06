@@ -1,8 +1,8 @@
-.o_list_table th:not(:last-child) {
+.peepl_weekly_report_list th:not(:last-child) {
     position: relative;
 }
 
-.o_list_table th:not(:last-child) .col-resizer {
+.peepl_weekly_report_list th:not(:last-child) .col-resizer {
     position: absolute;
     top: 0;
     right: 0;

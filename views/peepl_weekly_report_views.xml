@@ -72,7 +72,7 @@
         <field name="name">peepl.weekly.report.tree</field>
         <field name="model">peepl.weekly.report</field>
         <field name="arch" type="xml">
-            <list duplicate="false">
+            <list duplicate="false" class="peepl_weekly_report_list">
                 <field name="display_number" string="No" width="40px" class="text-center"/>
                 <field name="name" column_invisible="1"/>
                 <field name="pic_id" optional="show"/>

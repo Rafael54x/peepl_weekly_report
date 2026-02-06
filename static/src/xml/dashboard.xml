@@ -343,7 +343,7 @@
                                                     <tr>
                                                         <td><t t-esc="report.name"/></td>
                                                         <td><t t-esc="report.pic_id[1]"/></td>
-                                                        <td><t t-esc="report.project_task"/></td>
+                                                        <td class="project-task-cell"><t t-esc="report.project_task"/></td>
                                                         <td><t t-esc="report.deadline || '-'"/></td>
                                                         <td>
                                                             <span t-att-class="'badge status-' + report.status">

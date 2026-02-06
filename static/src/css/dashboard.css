@@ -196,6 +196,10 @@
     min-width: 180px;
 }
 
+.peepl-dashboard th:nth-child(3) {
+    text-align: left;
+}
+
 .peepl-dashboard .table tbody td {
     padding: 16px 18px;
     vertical-align: middle;
@@ -562,6 +566,17 @@
     border: 1px solid #e9ecef;
     border-radius: 4px;
     background-color: #f8f9fa;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.peepl-dashboard .project-task-cell {
+    max-width: 250px;
+    text-align: left;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    padding: 8px;
     font-size: 12px;
     line-height: 1.4;
 }

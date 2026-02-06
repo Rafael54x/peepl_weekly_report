@@ -4,7 +4,7 @@
         <field name="name">peepl.pic.overview.tree</field>
         <field name="model">peepl.pic.overview</field>
         <field name="arch" type="xml">
-            <list create="false">
+            <list create="false" class="peepl_weekly_report_list">
                 <header>
                     <button name="update_overview" string="Update" type="object" class="btn-primary"/>
                 </header>
