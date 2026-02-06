@@ -8,9 +8,5 @@ from . import hr_department
 from . import peepl_department_view
 from . import res_config_settings
 from . import peepl_user_assignment
-from . import peepl_dashboard
 from . import peepl_pic_overview
 from . import res_users
-from . import peepl_default_field
-from . import res_groups
-from . import res_users_groups

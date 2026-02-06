@@ -241,7 +241,7 @@ class PeeplFieldTemplateMixin(models.AbstractModel):
                 templates = self.env['peepl.field.template'].search([('active', '=', True)], order='sequence')
                 
                 if view_type == 'list':
-                    notes_node = arch.find('.//field[@name="notes"]')
+                    notes_node = arch.find('.//field[@name="pic_id"]')
                     if notes_node is not None:
                         for template in templates:
                             fname = template._column_name()

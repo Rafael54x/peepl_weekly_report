@@ -1,5 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- ========================================== -->
+    <!-- RES.USERS INHERITED VIEWS                  -->
+    <!-- ========================================== -->
+    
+    <record id="view_users_form_weekly_access" model="ir.ui.view">
+        <field name="name">res.users.form.weekly.access</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <field name="login" position="after">
+                <field name="weekly_report_access"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_users_form_weekly_report" model="ir.ui.view">
+        <field name="name">res.users.form.weekly.report</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='access_rights']" position="inside">
+                <div class="o_inner_group grid col-lg-6">
+                    <div class="g-col-sm-2">
+                        <div class="o_horizontal_separator mt-4 mb-3 text-uppercase fw-bolder small">Weekly Reports</div>
+                    </div>
+                    <div class="o_cell o_wrap_label text-break text-900">
+                        <label class="o_form_label" for="weekly_report_access">Access Level</label>
+                    </div>
+                    <div class="o_cell o_wrap_input text-break mb-3 mb-sm-0">
+                        <field name="weekly_report_access"/>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- RES.CONFIG.SETTINGS INHERITED VIEWS        -->
+    <!-- ========================================== -->
+    
     <record id="res_config_settings_view_form" model="ir.ui.view">
         <field name="name">res.config.settings.view.form.inherit.peepl</field>
         <field name="model">res.config.settings</field>
@@ -54,11 +94,4 @@
               action="action_peepl_weekly_report_config"
               sequence="1"
               groups="peepl_weekly_report.group_peepl_staff,peepl_weekly_report.group_peepl_manager,peepl_weekly_report.group_peepl_bod"/>
-
-    <!-- Test menu for Staff -->
-    <menuitem id="menu_peepl_test_staff"
-              name="Test Staff Menu"
-              parent="menu_peepl_weekly_report_root"
-              sequence="95"
-              groups="peepl_weekly_report.group_peepl_staff"/>
 </odoo>

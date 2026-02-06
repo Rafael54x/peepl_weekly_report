@@ -219,6 +219,7 @@ class PeeplWeeklyReport(models.Model):
         return result
 
     def _update_pic_overview(self):
+        """Update PIC overview"""
         self.env['peepl.pic.overview'].update_all_stats()
 
     @api.constrains('progress')

@@ -40,39 +40,17 @@ class PicOverviewCustomView extends Component {
     async loadRecords() {
         this.state.loading = true;
         try {
-            // Get current user role for filtering
-            const currentUser = this.env.user;
+            // Apply filters
             let domain = [];
+            const urlParams = new URLSearchParams(window.location.search);
+            const nameFilter = urlParams.get('name_filter') || this.state.searchTerm;
+            const deptFilter = urlParams.get('dept_filter_pic') || this.state.departmentFilter;
             
-            // Apply role-based filtering
-            if (!currentUser.hasGroup('peepl_weekly_report.group_peepl_bod')) {
-                // Manager/Staff: filter by department
-                const assignment = await this.orm.searchRead(
-                    "peepl.user.assignment",
-                    [["user_id", "=", currentUser.userId], ["active", "=", true]],
-                    ["department_id"],
-                    { limit: 1 }
-                );
-                
-                if (assignment.length > 0 && assignment[0].department_id) {
-                    if (currentUser.hasGroup('peepl_weekly_report.group_peepl_manager')) {
-                        // Manager: see department users
-                        domain.push(["department_id", "=", assignment[0].department_id[0]]);
-                    } else {
-                        // Staff: see only themselves
-                        domain.push(["user_id", "=", currentUser.userId]);
-                    }
-                }
+            if (nameFilter) {
+                domain.push(["user_id.name", "=", nameFilter]);
             }
-            
-            // Add search filter
-            if (this.state.searchTerm) {
-                domain.push([
-                    "|", "|",
-                    ["user_id.name", "ilike", this.state.searchTerm],
-                    ["department_id.name", "ilike", this.state.searchTerm],
-                    ["job_position", "ilike", this.state.searchTerm]
-                ]);
+            if (deptFilter) {
+                domain.push(["department_id.name", "=", deptFilter]);
             }
             
             const fields = [
@@ -85,11 +63,38 @@ class PicOverviewCustomView extends Component {
                 "peepl.pic.overview",
                 domain,
                 fields,
-                { order: `${this.state.sortField} ${this.state.sortOrder}` }
+                { 
+                    order: `${this.state.sortField} ${this.state.sortOrder}`,
+                    limit: this.state.recordsPerPage,
+                    offset: (this.state.currentPage - 1) * this.state.recordsPerPage
+                }
             );
             
+            // Get total count for pagination
+            const totalCount = await this.orm.searchCount(
+                "peepl.pic.overview",
+                domain
+            );
+            
+            // Extract unique names and departments for filter dropdowns
+            const uniqueNamesSet = new Set();
+            const uniqueDepartmentsSet = new Set();
+            records.forEach(record => {
+                if (record.user_id && record.user_id[1]) {
+                    uniqueNamesSet.add(record.user_id[1]);
+                }
+                if (record.department_id && record.department_id[1]) {
+                    uniqueDepartmentsSet.add(record.department_id[1]);
+                }
+            });
+            this.state.uniqueNames = Array.from(uniqueNamesSet).sort();
+            this.state.uniqueDepartments = Array.from(uniqueDepartmentsSet).sort();
+            
             this.state.records = records;
-            this.state.totalRecords = records.length;
+            this.state.totalRecords = totalCount;
+            
+            // Render progress bars after records are loaded
+            this.renderProgressBars();
         } catch (error) {
             console.error("Error loading PIC overview records:", error);
         } finally {
@@ -245,69 +250,7 @@ class PicOverviewCustomView extends Component {
         }, 100);
     }
     
-    async loadRecords() {
-        this.state.loading = true;
-        try {
-            console.log("Starting loadRecords...");
-            
-            // First update all stats to ensure fresh data
-            await this.orm.call("peepl.pic.overview", "update_all_stats", []);
-            console.log("Stats updated");
-            
-            // Apply filters
-            let domain = [];
-            const urlParams = new URLSearchParams(window.location.search);
-            const nameFilter = urlParams.get('name_filter') || this.state.searchTerm;
-            const deptFilter = urlParams.get('dept_filter_pic') || this.state.departmentFilter;
-            
-            if (nameFilter) {
-                domain.push(["user_id.name", "=", nameFilter]);
-            }
-            if (deptFilter) {
-                domain.push(["department_id.name", "=", deptFilter]);
-            }
-            
-            const records = await this.orm.searchRead(
-                "peepl.pic.overview",
-                domain,
-                ["user_id", "department_id", "job_position", "total_tasks", "completed", "in_progress", "not_started", "delayed", "plan", "overdue", "avg_progress"],
-                { 
-                    limit: this.state.recordsPerPage,
-                    offset: (this.state.currentPage - 1) * this.state.recordsPerPage
-                }
-            );
-            
-            // Get total count for pagination
-            const totalCount = await this.orm.searchCount(
-                "peepl.pic.overview",
-                domain
-            );
-            
-            // Extract unique names and departments for filter dropdowns
-            const uniqueNamesSet = new Set();
-            const uniqueDepartmentsSet = new Set();
-            records.forEach(record => {
-                if (record.user_id && record.user_id[1]) {
-                    uniqueNamesSet.add(record.user_id[1]);
-                }
-                if (record.department_id && record.department_id[1]) {
-                    uniqueDepartmentsSet.add(record.department_id[1]);
-                }
-            });
-            this.state.uniqueNames = Array.from(uniqueNamesSet).sort();
-            this.state.uniqueDepartments = Array.from(uniqueDepartmentsSet).sort();
-            
-            this.state.records = records;
-            this.state.totalRecords = totalCount;
-            
-            // Render progress bars after records are loaded
-            this.renderProgressBars();
-        } catch (error) {
-            console.error("Error loading PIC overview records:", error);
-        } finally {
-            this.state.loading = false;
-        }
-    }
+
 }
 
 registry.category("actions").add("pic_overview_custom_view", PicOverviewCustomView);

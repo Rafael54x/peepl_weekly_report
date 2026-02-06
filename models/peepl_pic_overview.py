@@ -36,12 +36,7 @@ class PeeplPicOverview(models.Model):
         # Get all users with weekly reports (respects record rules)
         users_with_reports = self.env['peepl.weekly.report'].search([]).mapped('pic_id')
         
-        # Delete existing records (respects record rules)
-        existing_records = self.search([])
-        if existing_records:
-            existing_records.unlink()
-        
-        # Create new records for each user
+        # Update or create records for each user
         for user in users_with_reports:
             assignment = self.env['peepl.user.assignment'].sudo().search([
                 ('user_id', '=', user.id),
@@ -50,8 +45,10 @@ class PeeplPicOverview(models.Model):
             
             reports = self.env['peepl.weekly.report'].search([('pic_id', '=', user.id)])
             
-            # Use sudo() to bypass record rules for system updates
-            self.sudo().create({
+            # Check if record exists (respects record rules)
+            existing = self.search([('user_id', '=', user.id)], limit=1)
+            
+            vals = {
                 'user_id': user.id,
                 'department_id': assignment.department_id.id if assignment and assignment.department_id else False,
                 'job_position': assignment.job_id.name if assignment and assignment.job_id else 'No Position',
@@ -63,7 +60,12 @@ class PeeplPicOverview(models.Model):
                 'plan': len(reports.filtered(lambda r: r.status == 'plan')),
                 'overdue': len(reports.filtered(lambda r: r.status == 'overdue')),
                 'avg_progress': sum(reports.mapped('progress')) / len(reports) if reports else 0.0,
-            })
+            }
+            
+            if existing:
+                existing.write(vals)
+            else:
+                self.create(vals)
 
     def update_overview(self):
         self.update_all_stats()

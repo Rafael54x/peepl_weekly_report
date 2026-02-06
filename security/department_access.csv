@@ -1,7 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_peepl_weekly_report_department_staff,peepl.weekly.report.department staff,model_peepl_weekly_report_department,peepl_weekly_report.group_peepl_staff,1,0,0,0
-access_peepl_weekly_report_department_manager,peepl.weekly.report.department manager,model_peepl_weekly_report_department,peepl_weekly_report.group_peepl_manager,1,1,1,0
-access_peepl_weekly_report_department_bod,peepl.weekly.report.department bod,model_peepl_weekly_report_department,peepl_weekly_report.group_peepl_bod,1,1,1,1
-access_peepl_department_view_staff,peepl.department.view staff,model_peepl_department_view,peepl_weekly_report.group_peepl_staff,1,0,0,0
-access_peepl_department_view_manager,peepl.department.view manager,model_peepl_department_view,peepl_weekly_report.group_peepl_manager,1,0,0,0
-access_peepl_department_view_bod,peepl.department.view bod,model_peepl_department_view,peepl_weekly_report.group_peepl_bod,1,0,0,0

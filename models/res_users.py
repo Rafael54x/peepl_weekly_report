@@ -12,6 +12,23 @@ class ResUsers(models.Model):
         ('bod', 'BOD')
     ], string='Weekly Report Access', compute='_compute_weekly_access', inverse='_set_weekly_access')
     
+    # Computed field for record rules
+    weekly_report_department_ids = fields.Many2many(
+        'hr.department',
+        compute='_compute_weekly_department_ids',
+        string='Weekly Report Departments'
+    )
+    
+    @api.depends_context('uid')
+    def _compute_weekly_department_ids(self):
+        """Compute user's departments for record rules"""
+        for user in self:
+            assignments = self.env['peepl.user.assignment'].sudo().search([
+                ('user_id', '=', user.id),
+                ('active', '=', True)
+            ])
+            user.weekly_report_department_ids = assignments.mapped('department_id')
+    
     def _compute_weekly_access(self):
         for user in self:
             if user.has_group('peepl_weekly_report.group_peepl_bod'):
@@ -24,32 +41,31 @@ class ResUsers(models.Model):
                 user.weekly_report_access = 'none'
     
     def _set_weekly_access(self):
+        staff_group = self.env.ref('peepl_weekly_report.group_peepl_staff')
+        manager_group = self.env.ref('peepl_weekly_report.group_peepl_manager')
+        bod_group = self.env.ref('peepl_weekly_report.group_peepl_bod')
+        
         for user in self:
-            # Remove all groups
-            groups_to_remove = [
-                'peepl_weekly_report.group_peepl_staff',
-                'peepl_weekly_report.group_peepl_manager', 
-                'peepl_weekly_report.group_peepl_bod'
-            ]
-            for group_xml_id in groups_to_remove:
-                try:
-                    group = self.env.ref(group_xml_id)
-                    user.write({'groups_id': [(3, group.id)]})
-                except:
-                    pass
+            self.env.cr.execute("""
+                DELETE FROM res_groups_users_rel 
+                WHERE uid = %s AND gid IN %s
+            """, (user.id, tuple([staff_group.id, manager_group.id, bod_group.id])))
             
-            # Add selected group
-            if user.weekly_report_access != 'none':
-                group_map = {
-                    'staff': 'peepl_weekly_report.group_peepl_staff',
-                    'manager': 'peepl_weekly_report.group_peepl_manager',
-                    'bod': 'peepl_weekly_report.group_peepl_bod'
-                }
-                try:
-                    group = self.env.ref(group_map[user.weekly_report_access])
-                    user.write({'groups_id': [(4, group.id)]})
-                except:
-                    pass
+            if user.weekly_report_access == 'staff':
+                self.env.cr.execute("""
+                    INSERT INTO res_groups_users_rel (uid, gid) 
+                    VALUES (%s, %s) ON CONFLICT DO NOTHING
+                """, (user.id, staff_group.id))
+            elif user.weekly_report_access == 'manager':
+                self.env.cr.execute("""
+                    INSERT INTO res_groups_users_rel (uid, gid) 
+                    VALUES (%s, %s) ON CONFLICT DO NOTHING
+                """, (user.id, manager_group.id))
+            elif user.weekly_report_access == 'bod':
+                self.env.cr.execute("""
+                    INSERT INTO res_groups_users_rel (uid, gid) 
+                    VALUES (%s, %s) ON CONFLICT DO NOTHING
+                """, (user.id, bod_group.id))
 
     @api.model
     def name_search(self, name='', domain=None, operator='ilike', limit=100):
