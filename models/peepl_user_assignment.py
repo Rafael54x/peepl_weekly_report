@@ -19,29 +19,26 @@ class PeeplUserAssignment(models.Model):
     @api.onchange('user_id')
     def _onchange_user_id(self):
         if self.user_id:
-            # Try to get department from hr.employee first
-            try:
-                employee = self.env['hr.employee'].search([('user_id', '=', self.user_id.id)], limit=1)
-                if employee and employee.department_id:
+            # Auto-fill department and job from hr.employee
+            employee = self.env['hr.employee'].search([('user_id', '=', self.user_id.id)], limit=1)
+            if employee:
+                if employee.department_id:
                     self.department_id = employee.department_id.id
-                    return
-            except:
-                pass
+                if employee.job_id:
+                    self.job_id = employee.job_id.id
+                return
             
             # Fallback to existing assignment
             existing_assignment = self.search([
                 ('user_id', '=', self.user_id.id),
-                ('active', '=', True),
-                ('department_id', '!=', False)
+                ('active', '=', True)
             ], limit=1)
             
             if existing_assignment:
-                self.department_id = existing_assignment.department_id.id
-
-    @api.onchange('job_id')
-    def _onchange_job_id(self):
-        if self.job_id and self.job_id.name and 'bod' in self.job_id.name.lower():
-            self.department_id = False
+                if existing_assignment.department_id:
+                    self.department_id = existing_assignment.department_id.id
+                if existing_assignment.job_id:
+                    self.job_id = existing_assignment.job_id.id
 
     @api.constrains('user_id', 'job_id', 'department_id')
     def _check_assignment_rules(self):
@@ -82,34 +79,20 @@ class PeeplUserAssignment(models.Model):
             vals_list = [vals_list]
         
         for vals in vals_list:
-            # Auto-set department from user's HR employee if not BOD
-            if vals.get('user_id') and vals.get('job_id'):
-                job = self.env['hr.job'].browse(vals['job_id'])
-                if job.name and 'bod' in job.name.lower():
-                    vals['department_id'] = False
-                elif not vals.get('department_id'):
-                    # Try to get department from hr.employee
-                    try:
-                        employee = self.env['hr.employee'].search([('user_id', '=', vals['user_id'])], limit=1)
-                        if employee and employee.department_id:
-                            vals['department_id'] = employee.department_id.id
-                    except:
-                        # Fallback to existing assignment or current user's department
-                        existing_assignment = self.search([
-                            ('user_id', '=', vals['user_id']),
-                            ('active', '=', True),
-                            ('department_id', '!=', False)
-                        ], limit=1)
-                        
-                        if existing_assignment:
-                            vals['department_id'] = existing_assignment.department_id.id
-                        else:
-                            current_user_assignment = self.search([
-                                ('user_id', '=', self.env.user.id),
-                                ('active', '=', True)
-                            ], limit=1)
-                            if current_user_assignment and current_user_assignment.department_id:
-                                vals['department_id'] = current_user_assignment.department_id.id
+            # Auto-set department and job from user's HR employee
+            if vals.get('user_id'):
+                employee = self.env['hr.employee'].search([('user_id', '=', vals['user_id'])], limit=1)
+                if employee:
+                    if employee.department_id and not vals.get('department_id'):
+                        vals['department_id'] = employee.department_id.id
+                    if employee.job_id and not vals.get('job_id'):
+                        vals['job_id'] = employee.job_id.id
+                
+                # Handle BOD positions
+                if vals.get('job_id'):
+                    job = self.env['hr.job'].browse(vals['job_id'])
+                    if job.name and 'bod' in job.name.lower():
+                        vals['department_id'] = False
         
         result = super(PeeplUserAssignment, self).create(vals_list)
         self._update_pic_overview()

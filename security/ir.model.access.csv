@@ -17,7 +17,7 @@ access_hr_employee_bod,access.hr.employee.bod,hr.model_hr_employee,group_peepl_b
 access_hr_job_staff,access.hr.job.staff,hr.model_hr_job,group_peepl_staff,1,0,0,0
 access_hr_job_manager,access.hr.job.manager,hr.model_hr_job,group_peepl_manager,1,0,0,0
 access_hr_job_bod,access.hr.job.bod,hr.model_hr_job,group_peepl_bod,1,1,1,1
-access_peepl_user_assignment_staff,access.peepl.user.assignment.staff,model_peepl_user_assignment,group_peepl_staff,1,1,1,1
+access_peepl_user_assignment_staff,access.peepl.user.assignment.staff,model_peepl_user_assignment,group_peepl_staff,1,0,0,0
 access_peepl_user_assignment_manager,access.peepl.user.assignment.manager,model_peepl_user_assignment,group_peepl_manager,1,1,1,1
 access_peepl_user_assignment_bod,access.peepl.user.assignment.bod,model_peepl_user_assignment,group_peepl_bod,1,1,1,1
 access_peepl_dashboard_staff,access.peepl.dashboard.staff,model_peepl_dashboard,group_peepl_staff,1,0,0,0

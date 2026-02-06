@@ -24,8 +24,8 @@
                         <field name="allowed_job_ids" invisible="1"/>
                         <field name="allowed_department_ids" invisible="1"/>
                         <field name="user_id" domain="[('id', 'in', allowed_user_ids)]"/>
-                        <field name="job_id" string="Job Position" domain="[('id', 'in', allowed_job_ids)]"/>
-                        <field name="department_id" domain="[('id', 'in', allowed_department_ids)]" readonly="not allowed_department_ids"/>
+                        <field name="job_id" string="Job Position" domain="[('id', 'in', allowed_job_ids)]" readonly="1"/>
+                        <field name="department_id" domain="[('id', 'in', allowed_department_ids)]" readonly="1"/>
                         <field name="assigned_by" readonly="1"/>
                     </group>
                 </sheet>

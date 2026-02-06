@@ -33,27 +33,28 @@ class PeeplPicOverview(models.Model):
     @api.model
     def update_all_stats(self):
         """Update all PIC overview statistics"""
-        # Run migration first
-        self._migrate_position_to_job_position()
-        # Get all users with weekly reports
+        # Get all users with weekly reports (respects record rules)
         users_with_reports = self.env['peepl.weekly.report'].search([]).mapped('pic_id')
         
-        # Delete existing records
-        self.search([]).unlink()
+        # Delete existing records (respects record rules)
+        existing_records = self.search([])
+        if existing_records:
+            existing_records.unlink()
         
-        # Create new records
+        # Create new records for each user
         for user in users_with_reports:
-            assignment = self.env['peepl.user.assignment'].search([
+            assignment = self.env['peepl.user.assignment'].sudo().search([
                 ('user_id', '=', user.id),
                 ('active', '=', True)
             ], limit=1)
             
             reports = self.env['peepl.weekly.report'].search([('pic_id', '=', user.id)])
             
-            self.create({
+            # Use sudo() to bypass record rules for system updates
+            self.sudo().create({
                 'user_id': user.id,
                 'department_id': assignment.department_id.id if assignment and assignment.department_id else False,
-                'job_position': assignment.job_id.name if assignment and assignment.job_id else 'No Assignment',
+                'job_position': assignment.job_id.name if assignment and assignment.job_id else 'No Position',
                 'total_tasks': len(reports),
                 'completed': len(reports.filtered(lambda r: r.status == 'completed')),
                 'in_progress': len(reports.filtered(lambda r: r.status == 'in_progress')),
