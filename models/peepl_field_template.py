@@ -29,7 +29,7 @@ class PeeplFieldTemplate(models.Model):
         ('progress', 'Progress'),
         ('deadline', 'Deadline'),
         ('notes', 'Notes'),
-    ], string='Position After', default='pic_id', required=True)
+    ], string='Position', default='pic_id', required=True)
     position = fields.Selection([
         ('before', 'Before'),
         ('after', 'After'),

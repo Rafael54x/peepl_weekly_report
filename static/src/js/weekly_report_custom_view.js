@@ -27,7 +27,15 @@ class WeeklyReportCustomView extends Component {
             selectedRecords: new Set(),
             selectAll: false,
             dynamicFields: [],
-            uniqueNames: []
+            uniqueNames: [],
+            visibleColumns: {
+                pic_id: true,
+                project_task: true,
+                deadline: true,
+                status: true,
+                progress: true,
+                notes: true
+            }
         });
         
         this.userDepartmentId = null;
@@ -36,6 +44,12 @@ class WeeklyReportCustomView extends Component {
         this.isBOD = false;
         
         onWillStart(async () => {
+            // Load saved column visibility from localStorage
+            const savedColumns = localStorage.getItem('weekly_report_visible_columns');
+            if (savedColumns) {
+                this.state.visibleColumns = JSON.parse(savedColumns);
+            }
+            
             // Load user department and role first
             await this.loadUserDepartment();
             await this.loadUserRole();
@@ -102,6 +116,7 @@ class WeeklyReportCustomView extends Component {
             this.setupEventListeners();
             this.renderNotesContent();
             this.preserveUrlParams();
+            this.applyColumnVisibility();
         });
     }
 
@@ -162,6 +177,9 @@ class WeeklyReportCustomView extends Component {
                     }
                 });
             });
+            
+            // Apply column visibility after injection
+            this.applyColumnVisibility();
         }, 100);
     }
     
@@ -699,6 +717,26 @@ class WeeklyReportCustomView extends Component {
                 </div>
             </div>
         `;
+    }
+    
+    toggleColumn(columnName, visible) {
+        this.state.visibleColumns[columnName] = visible;
+        localStorage.setItem('weekly_report_visible_columns', JSON.stringify(this.state.visibleColumns));
+        const columns = document.querySelectorAll(`th[data-name="${columnName}"], td[name="${columnName}"]`);
+        columns.forEach(col => {
+            col.style.display = visible ? '' : 'none';
+        });
+    }
+    
+    applyColumnVisibility() {
+        Object.keys(this.state.visibleColumns).forEach(columnName => {
+            if (!this.state.visibleColumns[columnName]) {
+                const columns = document.querySelectorAll(`th[data-name="${columnName}"], td[name="${columnName}"]`);
+                columns.forEach(col => {
+                    col.style.display = 'none';
+                });
+            }
+        });
     }
 }
 

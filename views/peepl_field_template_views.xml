@@ -4,11 +4,13 @@
         <field name="name">peepl.field.template.tree</field>
         <field name="model">peepl.field.template</field>
         <field name="arch" type="xml">
-            <list>
+            <list default_order="sequence desc">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="field_type"/>
                 <field name="department_id"/>
+                <field name="anchor_field" string="Position"/>
+                <field name="position" string="Insert"/>
                 <field name="description"/>
             </list>
         </field>
@@ -29,7 +31,7 @@
                     
                     <group>
                         <group>
-                            <field name="sequence"/>
+                            <field name="sequence" invisible="1"/>
                             <field name="field_type"/>
                             <field name="allowed_department_ids" invisible="1"/>
                             <field name="department_id" domain="[('id', 'in', allowed_department_ids)]"/>

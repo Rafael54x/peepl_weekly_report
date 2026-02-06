@@ -34,8 +34,57 @@
                             </button>
                         </div>
                         
-                        <!-- Right: Pagination -->
+                        <!-- Right: Pagination + Column Filter -->
                         <div class="o_control_panel_navigation d-flex flex-wrap flex-md-nowrap justify-content-end gap-3 order-2">
+                            <!-- Column Filter Dropdown -->
+                            <div class="o_optional_columns_dropdown dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Optional columns">
+                                    <i class="fa fa-columns"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <label class="dropdown-item">
+                                            <input type="checkbox" t-att-checked="state.visibleColumns.pic_id" t-on-change="(e) => this.toggleColumn('pic_id', e.target.checked)"/> PIC
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="dropdown-item">
+                                            <input type="checkbox" t-att-checked="state.visibleColumns.project_task" t-on-change="(e) => this.toggleColumn('project_task', e.target.checked)"/> Project / Task
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="dropdown-item">
+                                            <input type="checkbox" t-att-checked="state.visibleColumns.deadline" t-on-change="(e) => this.toggleColumn('deadline', e.target.checked)"/> Deadline
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="dropdown-item">
+                                            <input type="checkbox" t-att-checked="state.visibleColumns.status" t-on-change="(e) => this.toggleColumn('status', e.target.checked)"/> Status
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="dropdown-item">
+                                            <input type="checkbox" t-att-checked="state.visibleColumns.progress" t-on-change="(e) => this.toggleColumn('progress', e.target.checked)"/> Progress
+                                        </label>
+                                    </li>
+                                    <li>
+                                        <label class="dropdown-item">
+                                            <input type="checkbox" t-att-checked="state.visibleColumns.notes" t-on-change="(e) => this.toggleColumn('notes', e.target.checked)"/> Notes
+                                        </label>
+                                    </li>
+                                    <t t-if="state.dynamicFields.length > 0">
+                                        <li><hr class="dropdown-divider"/></li>
+                                        <t t-foreach="state.dynamicFields" t-as="field" t-key="field.name">
+                                            <li>
+                                                <label class="dropdown-item">
+                                                    <input type="checkbox" t-att-checked="state.visibleColumns[field.name] !== false" t-on-change="(e) => this.toggleColumn(field.name, e.target.checked)"/> <t t-esc="field.label"/>
+                                                </label>
+                                            </li>
+                                        </t>
+                                    </t>
+                                </ul>
+                            </div>
+                            
                             <div class="o_cp_pager text-nowrap" role="search">
                                 <nav class="o_pager d-flex gap-2 h-100" aria-label="Pager">
                                     <button class="btn btn-outline-secondary btn-sm" t-on-click="() => this.onPageChange(state.currentPage - 1)" t-att-disabled="state.currentPage === 1">

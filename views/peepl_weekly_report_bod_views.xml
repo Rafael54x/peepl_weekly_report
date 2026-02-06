@@ -97,9 +97,12 @@
                                 </div>
                                 <separator string="Custom Fields"/>
                                 <field name="field_template_ids" context="{'default_department_id': department_id}" domain="[('department_id', '=', department_id)]">
-                                    <list string="Custom Fields">
+                                    <list string="Custom Fields" default_order="sequence desc">
+                                        <field name="sequence" widget="handle"/>
                                         <field name="name"/>
                                         <field name="field_type"/>
+                                        <field name="anchor_field" string="Position"/>
+                                        <field name="position" string="Insert"/>
                                         <field name="description"/>
                                     </list>
                                 </field>
