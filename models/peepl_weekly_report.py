@@ -286,9 +286,28 @@ class PeeplWeeklyReport(models.Model):
     @api.depends('create_uid')
     def _compute_allowed_pic_ids(self):
         for record in self:
-            # Get all assigned users from user assignment
-            assigned_users = self.env['peepl.user.assignment'].search([('active', '=', True)]).mapped('user_id')
-            record.allowed_pic_ids = assigned_users
+            current_user = self.env.user
+            if current_user.has_group('peepl_weekly_report.group_peepl_bod'):
+                # BOD: all users
+                assigned_users = self.env['peepl.user.assignment'].search([('active', '=', True)]).mapped('user_id')
+                record.allowed_pic_ids = assigned_users
+            elif current_user.has_group('peepl_weekly_report.group_peepl_manager'):
+                # Manager: only users from same department
+                user_assignment = self.env['peepl.user.assignment'].search([
+                    ('user_id', '=', current_user.id),
+                    ('active', '=', True)
+                ], limit=1)
+                if user_assignment and user_assignment.department_id:
+                    dept_assignments = self.env['peepl.user.assignment'].search([
+                        ('department_id', '=', user_assignment.department_id.id),
+                        ('active', '=', True)
+                    ])
+                    record.allowed_pic_ids = dept_assignments.mapped('user_id')
+                else:
+                    record.allowed_pic_ids = self.env['res.users']
+            else:
+                # Staff: only themselves
+                record.allowed_pic_ids = current_user
 
     @api.model
     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):

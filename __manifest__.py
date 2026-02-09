@@ -71,6 +71,7 @@ Key Features:
     'installable': True,
     'auto_install': False,
     'application': False,
+    'post_init_hook': None,
     'pre_init_hook': None,
     'uninstall_hook': None,
     'external_dependencies': {
