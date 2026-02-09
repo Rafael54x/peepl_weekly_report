@@ -46,26 +46,31 @@ class ResUsers(models.Model):
         bod_group = self.env.ref('peepl_weekly_report.group_peepl_bod')
         
         for user in self:
-            self.env.cr.execute("""
-                DELETE FROM res_groups_users_rel 
-                WHERE uid = %s AND gid IN %s
-            """, (user.id, tuple([staff_group.id, manager_group.id, bod_group.id])))
+            # Skip if already processing to avoid infinite loop
+            if self.env.context.get('skip_weekly_access_inverse'):
+                continue
             
+            # Get current groups
+            current_groups = user.group_ids.ids
+            new_groups = current_groups.copy()
+            
+            # Remove all weekly report groups
+            for gid in [staff_group.id, manager_group.id, bod_group.id]:
+                if gid in new_groups:
+                    new_groups.remove(gid)
+            
+            # Add only the selected group
             if user.weekly_report_access == 'staff':
-                self.env.cr.execute("""
-                    INSERT INTO res_groups_users_rel (uid, gid) 
-                    VALUES (%s, %s) ON CONFLICT DO NOTHING
-                """, (user.id, staff_group.id))
+                new_groups.append(staff_group.id)
             elif user.weekly_report_access == 'manager':
-                self.env.cr.execute("""
-                    INSERT INTO res_groups_users_rel (uid, gid) 
-                    VALUES (%s, %s) ON CONFLICT DO NOTHING
-                """, (user.id, manager_group.id))
+                new_groups.append(manager_group.id)
             elif user.weekly_report_access == 'bod':
-                self.env.cr.execute("""
-                    INSERT INTO res_groups_users_rel (uid, gid) 
-                    VALUES (%s, %s) ON CONFLICT DO NOTHING
-                """, (user.id, bod_group.id))
+                new_groups.append(bod_group.id)
+            
+            # Write with context flag to prevent recursion
+            user.with_context(skip_weekly_access_inverse=True).sudo().write({
+                'group_ids': [(6, 0, new_groups)]
+            })
 
     @api.model
     def name_search(self, name='', domain=None, operator='ilike', limit=100):
