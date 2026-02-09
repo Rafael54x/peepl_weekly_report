@@ -11,3 +11,10 @@
     max-width: 250px !important;
     overflow-wrap: break-word !important;
 }
+
+/* Hide breadcrumb in weekly report form view - module specific */
+.o_action[data-name="peepl.weekly.report"] .o_control_panel .breadcrumb,
+.o_action[data-name="Weekly Reports"] .o_control_panel .breadcrumb,
+.o_action[data-name*="Weekly Report"] .o_control_panel .breadcrumb {
+    display: none !important;
+}
