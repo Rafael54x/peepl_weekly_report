@@ -54,6 +54,7 @@ Key Features:
             'peepl_weekly_report/static/src/js/user_access_reload.js',
             'peepl_weekly_report/static/src/js/hide_breadcrumb.js',
             'peepl_weekly_report/static/src/js/history_back_action.js',
+            'peepl_weekly_report/static/src/js/hide_save_button.js',
             'peepl_weekly_report/static/src/css/dashboard.css',
             'peepl_weekly_report/static/src/css/column_resize_new.css',
             'peepl_weekly_report/static/src/css/list_view.css',

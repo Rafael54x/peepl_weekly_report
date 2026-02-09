@@ -18,3 +18,8 @@
 .o_action[data-name*="Weekly Report"] .o_control_panel .breadcrumb {
     display: none !important;
 }
+
+/* Hide upload button in weekly report form view only */
+.o_form_view[data-resmodel="peepl.weekly.report"] .o_form_button_save .fa-cloud-upload {
+    display: none !important;
+}

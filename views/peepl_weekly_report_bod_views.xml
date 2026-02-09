@@ -27,15 +27,15 @@
                             </div>
                         </t>
                         <t t-name="card">
-                            <button class="btn w-100 h-100 p-0 border-0 bg-transparent text-start shadow-none" name="action_open_reports" type="object" style="cursor: pointer; box-shadow: none !important;">
+                            <button class="btn w-100 h-100 p-0 m-0 border-0 bg-transparent text-start shadow-none" name="action_open_reports" type="object" style="cursor: pointer; box-shadow: none !important; padding: 16px !important;">
                                 <div class="oe_kanban_card w-100 h-100">
-                                    <div class="fw-bold fs-4 d-block ms-2">
+                                    <div class="fw-bold fs-4 d-block">
                                         <field name="department_id"/>
                                     </div>
-                                    <field name="manager_id" widget="many2one_avatar_employee" options="{'display_avatar_name': True}" readonly="1" class="text-muted ms-2"/>
-                                    <div class="small mt-1 ms-2" groups="base.group_multi_company">
+                                    <field name="manager_id" widget="many2one_avatar_employee" options="{'display_avatar_name': True}" readonly="1" class="text-muted"/>
+                                    <div class="small mt-1" groups="base.group_multi_company">
                                     </div>
-                                    <div class="row g-0 mt-3 mb-2 ms-2">
+                                    <div class="row g-0 mt-3 mb-2">
                                         <div class="col-6">
                                         </div>
                                     </div>

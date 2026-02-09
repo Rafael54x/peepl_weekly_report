@@ -142,12 +142,7 @@ class PeeplWeeklyReport(models.Model):
     def action_save_close(self):
         return {
             'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'type': 'success',
-                'message': 'Saved successfully',
-                'next': {'type': 'ir.actions.act_window_close'},
-            }
+            'tag': 'history_back',
         }
 
     def action_back(self):

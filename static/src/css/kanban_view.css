@@ -6,6 +6,16 @@
     margin-bottom: 12px;
 }
 
+/* Department Kanban - Remove padding */
+.o_hr_department_kanban .o_kanban_record {
+    --KanbanRecord-padding-v: 0px;
+    --KanbanRecord-padding-h: 0px;
+}
+
+.o_hr_department_kanban .oe_kanban_card {
+    padding: 16px;
+}
+
 .o_kanban_view .oe_kanban_card:hover {
     box-shadow: 0 4px 16px rgba(0,0,0,0.15);
     transform: translateY(-2px);
