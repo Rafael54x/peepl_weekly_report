@@ -150,6 +150,12 @@ class PeeplWeeklyReport(models.Model):
             }
         }
 
+    def action_back(self):
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'history_back',
+        }
+
 
     @api.depends('pic_id')
     def _compute_department(self):

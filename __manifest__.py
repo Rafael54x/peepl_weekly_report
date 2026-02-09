@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Peepl Report - Weekly Report',
-    'version': '19.0.1.0.8',
+    'version': '19.0.1.0.10',
     'category': 'report/Projects',
     'summary': 'Weekly Report',
     'description': """
@@ -53,6 +53,7 @@ Key Features:
             'peepl_weekly_report/static/src/js/weekly_access_refresh.js',
             'peepl_weekly_report/static/src/js/user_access_reload.js',
             'peepl_weekly_report/static/src/js/hide_breadcrumb.js',
+            'peepl_weekly_report/static/src/js/history_back_action.js',
             'peepl_weekly_report/static/src/css/dashboard.css',
             'peepl_weekly_report/static/src/css/column_resize_new.css',
             'peepl_weekly_report/static/src/css/list_view.css',
