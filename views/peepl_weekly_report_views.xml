@@ -154,7 +154,7 @@
 
     <menuitem id="menu_peepl_weekly_report_root"
               name="Weekly Report"
-              groups="peepl_weekly_report.group_peepl_staff,peepl_weekly_report.group_peepl_manager,peepl_weekly_report.group_peepl_bod"
+              web_icon="peepl_weekly_report,static/description/icon.png"
               sequence="10"/>
 
 
