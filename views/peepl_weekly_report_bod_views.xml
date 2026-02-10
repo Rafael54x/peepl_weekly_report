@@ -61,7 +61,7 @@
                         </div>
                         <div class="oe_title">
                             <h1>
-                                <field name="department_id"/>
+                                <field name="department_id" options="{'no_create': True, 'no_quick_create': True, 'no_create_edit': True}"/>
                             </h1>
                         </div>
                         <group col="12">
@@ -178,7 +178,7 @@
                                 <field name="name" readonly="1" string="Report No."/>
                                 <field name="allowed_pic_ids" invisible="1"/>
                                 <field name="pic_id" widget="many2one_avatar_user" domain="[('id', 'in', allowed_pic_ids)]" options="{'no_create': True}"/>
-                                <field name="department_id" readonly="1"/>
+                                <field name="department_id"/>
                             </group>
                             <group string="Timeline &amp; Progress">
                                 <field name="status"/>

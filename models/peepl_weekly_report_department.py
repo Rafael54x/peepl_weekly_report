@@ -61,6 +61,17 @@ class PeeplWeeklyReportDepartment(models.Model):
             'target': 'new'
         }
 
+    def write(self, vals):
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'type': 'warning',
+                'message': 'Please refresh the page to see updated data.',
+                'sticky': False,
+            }
+        }
+
     def open_record(self):
         """Override default open to show weekly reports list"""
         self.ensure_one()
