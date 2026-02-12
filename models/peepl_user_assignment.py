@@ -13,69 +13,64 @@ class PeeplUserAssignment(models.Model):
     allowed_department_ids = fields.Many2many('hr.department', compute='_compute_allowed_departments', compute_sudo=True)
     job_id = fields.Many2one('hr.job', string='Job Position', required=True)
     department_id = fields.Many2one('hr.department', string='Department')
-    division = fields.Selection([
-        ('softdev', 'SoftDev (IT)'),
-        ('infrastructure', 'Infrastructure (IT)'),
-        ('qa', 'QA (IT)'),
-        ('odoo', 'Odoo (IT)'),
-        ('pm', 'PM (Assessment)'),
-        ('admin', 'Admin (Assessment)'),
-        ('workplace', 'WorkPlace Analytic (Assessment)'),
-        ('solution', 'Solution Delivery (Client Service)'),
-        ('sales', 'Sales (Client Service)'),
-    ], string='Division')
+    division_id = fields.Many2one('peepl.division', string='Division')
     division_users = fields.Html(string='Division Users', compute='_compute_division_users')
     assigned_by = fields.Many2one('res.users', string='Assigned By', default=lambda self: self.env.user, readonly=True)
     active = fields.Boolean(string='Active', default=True)
 
-    @api.depends('division')
+    @api.depends('division_id', 'user_id')
     def _compute_division_users(self):
         for record in self:
-            if record.division:
+            if record.division_id:
                 current_user = self.env.user
                 if current_user.has_group('peepl_weekly_report.group_peepl_manager') or current_user.has_group('peepl_weekly_report.group_peepl_bod'):
                     division_assignments = self.sudo().search([
-                        ('division', '=', record.division),
-                        ('active', '=', True)
+                        ('division_id', '=', record.division_id.id),
+                        ('active', '=', True),
+                        ('user_id', '!=', record.user_id.id)
                     ])
                     
                     supervisors = []
+                    managers = []
                     staff = []
                     
                     for assignment in division_assignments:
                         user_name = assignment.user_id.name
-                        if assignment.user_id.has_group('peepl_weekly_report.group_peepl_supervisor'):
+                        if assignment.user_id.has_group('peepl_weekly_report.group_peepl_manager'):
+                            managers.append(user_name)
+                        elif assignment.user_id.has_group('peepl_weekly_report.group_peepl_supervisor'):
                             supervisors.append(user_name)
                         else:
                             staff.append(user_name)
                     
                     html = '<style>.division-card{background:var(--o-view-background-color,#fff);color:var(--o-main-text-color,#000);border:1px solid var(--o-border-color,#dee2e6)}</style>'
                     
-                    # Supervisors section
-                    if supervisors:
-                        html += '<h5 style="margin: 0 0 10px 0; color: #017e84;"><i class="fa fa-user-circle"></i> Supervisors</h5>'
-                        html += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-bottom: 25px;">'
-                        for sup in supervisors:
-                            html += f'''
-                            <div class="division-card o_kanban_record" style="border-radius: 5px; padding: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                                <div style="color: #017e84; font-weight: bold;"><i class="fa fa-user"></i> {sup}</div>
-                            </div>
-                            '''
-                        html += '</div>'
+                    html += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">'
                     
-                    # Staff section
-                    if staff:
-                        html += '<h5 style="margin: 0 0 10px 0; color: #6c757d;"><i class="fa fa-users"></i> Staff</h5>'
-                        html += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">'
-                        for st in staff:
-                            html += f'''
-                            <div class="division-card o_kanban_record" style="border-radius: 5px; padding: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                                <div><i class="fa fa-user"></i> {st}</div>
-                            </div>
-                            '''
-                        html += '</div>'
+                    for mgr in managers:
+                        html += f'''
+                        <div class="division-card o_kanban_record" style="border-radius: 5px; padding: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                            <div><i class="fa fa-user-tie"></i> {mgr}</div>
+                        </div>
+                        '''
                     
-                    record.division_users = html if (supervisors or staff) else '<div class="alert alert-warning">No users in this division</div>'
+                    for sup in supervisors:
+                        html += f'''
+                        <div class="division-card o_kanban_record" style="border-radius: 5px; padding: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                            <div><i class="fa fa-user"></i> {sup}</div>
+                        </div>
+                        '''
+                    
+                    for st in staff:
+                        html += f'''
+                        <div class="division-card o_kanban_record" style="border-radius: 5px; padding: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                            <div><i class="fa fa-user"></i> {st}</div>
+                        </div>
+                        '''
+                    
+                    html += '</div>'
+                    
+                    record.division_users = html if (managers or supervisors or staff) else '<div class="alert alert-warning">No users in this division</div>'
                 else:
                     record.division_users = ''
             else:
@@ -120,8 +115,8 @@ class PeeplUserAssignment(models.Model):
             if current_user.has_group('peepl_weekly_report.group_peepl_supervisor'):
                 # Supervisor: only same division
                 supervisor_assignment = self.sudo().search([('user_id', '=', current_user.id), ('active', '=', True)], limit=1)
-                if supervisor_assignment and supervisor_assignment.division:
-                    if vals.get('division') and vals['division'] != supervisor_assignment.division:
+                if supervisor_assignment and supervisor_assignment.division_id:
+                    if vals.get('division_id') and vals['division_id'] != supervisor_assignment.division_id.id:
                         raise ValidationError("Supervisor can only assign users to their own division.")
             elif current_user.has_group('peepl_weekly_report.group_peepl_manager'):
                 manager_assignment = self.sudo().search([('user_id', '=', current_user.id), ('active', '=', True)], limit=1)
@@ -152,8 +147,8 @@ class PeeplUserAssignment(models.Model):
                 # Supervisor: only same division
                 supervisor_assignment = self.sudo().search([('user_id', '=', current_user.id), ('active', '=', True)], limit=1)
                 for vals in vals_list:
-                    if supervisor_assignment and supervisor_assignment.division:
-                        if vals.get('division') and vals['division'] != supervisor_assignment.division:
+                    if supervisor_assignment and supervisor_assignment.division_id:
+                        if vals.get('division_id') and vals['division_id'] != supervisor_assignment.division_id.id:
                             raise ValidationError("Supervisor can only assign users to their own division.")
             elif current_user.has_group('peepl_weekly_report.group_peepl_manager'):
                 # Manager/Supervisor checks

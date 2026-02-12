@@ -10,3 +10,4 @@ from . import peepl_user_assignment
 from . import peepl_pic_overview
 from . import res_users
 from . import peepl_department_delete_wizard
+from . import peepl_division

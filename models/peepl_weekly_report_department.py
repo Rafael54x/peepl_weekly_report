@@ -1,4 +1,5 @@
 from odoo import models, fields, api, tools
+from odoo.exceptions import UserError
 
 
 class PeeplWeeklyReportDepartment(models.Model):
@@ -15,6 +16,7 @@ class PeeplWeeklyReportDepartment(models.Model):
     status = fields.Selection([('draft', 'Draft'), ('done', 'Done')], string='Status')
     field_template_ids = fields.One2many('peepl.field.template', 'department_id', string='Field Templates')
     user_assignment_ids = fields.One2many('peepl.user.assignment', 'department_id', string='User Assignments')
+    division_ids = fields.One2many('peepl.division', 'department_id', string='Divisions')
 
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
@@ -37,6 +39,55 @@ class PeeplWeeklyReportDepartment(models.Model):
                 GROUP BY d.id, d.manager_id, d.company_id, d.color
             )
         """ % self._table)
+
+    def write(self, vals):
+        """Override write to handle One2many fields properly"""
+        self.ensure_one()
+        
+        # Handle field_template_ids changes
+        if 'field_template_ids' in vals:
+            for command in vals['field_template_ids']:
+                if command[0] == 2:  # Delete
+                    self.env['peepl.field.template'].browse(command[1]).unlink()
+                elif command[0] == 1:  # Update
+                    self.env['peepl.field.template'].browse(command[1]).write(command[2])
+                elif command[0] == 0:  # Create
+                    command[2]['department_id'] = self.department_id.id
+                    self.env['peepl.field.template'].create(command[2])
+        
+        # Handle user_assignment_ids changes
+        if 'user_assignment_ids' in vals:
+            for command in vals['user_assignment_ids']:
+                if command[0] == 2:  # Delete
+                    self.env['peepl.user.assignment'].browse(command[1]).unlink()
+                elif command[0] == 1:  # Update
+                    self.env['peepl.user.assignment'].browse(command[1]).write(command[2])
+                elif command[0] == 0:  # Create
+                    create_vals = command[2].copy()
+                    create_vals['department_id'] = self.department_id.id
+                    # Remove invalid fields
+                    create_vals.pop('user_assignment_ids', None)
+                    create_vals.pop('field_template_ids', None)
+                    create_vals.pop('division_ids', None)
+                    self.env['peepl.user.assignment'].create(create_vals)
+        
+        # Handle division_ids changes
+        if 'division_ids' in vals:
+            for command in vals['division_ids']:
+                if command[0] == 2:  # Delete
+                    self.env['peepl.division'].browse(command[1]).unlink()
+                elif command[0] == 1:  # Update
+                    self.env['peepl.division'].browse(command[1]).write(command[2])
+                elif command[0] == 0:  # Create
+                    create_vals = command[2].copy()
+                    create_vals['department_id'] = self.department_id.id
+                    # Remove invalid fields
+                    create_vals.pop('user_assignment_ids', None)
+                    create_vals.pop('field_template_ids', None)
+                    create_vals.pop('division_ids', None)
+                    self.env['peepl.division'].create(create_vals)
+        
+        return True
 
     def action_open_reports(self):
         self.ensure_one()

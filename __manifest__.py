@@ -38,6 +38,7 @@ Key Features:
         'views/peepl_field_template_views.xml',
         'views/peepl_weekly_report_bod_views.xml',
         'views/peepl_department_delete_wizard_views.xml',
+        'views/peepl_division_views.xml',
         'data/peepl_field_template_demo.xml',
     ],
     'images': ['static/description/icon.png'],

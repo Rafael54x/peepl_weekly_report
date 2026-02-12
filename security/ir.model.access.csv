@@ -45,3 +45,8 @@ access_peepl_department_view_manager,peepl.department.view.manager,model_peepl_d
 access_peepl_department_view_bod,peepl.department.view.bod,model_peepl_department_view,group_peepl_bod,1,0,0,0
 
 access_peepl_department_delete_wizard_bod,access.peepl.department.delete.wizard.bod,model_peepl_department_delete_wizard,group_peepl_bod,1,1,1,1
+
+access_peepl_division_staff,access.peepl.division.staff,model_peepl_division,group_peepl_staff,1,0,0,0
+access_peepl_division_supervisor,access.peepl.division.supervisor,model_peepl_division,group_peepl_supervisor,1,1,1,1
+access_peepl_division_manager,access.peepl.division.manager,model_peepl_division,group_peepl_manager,1,1,1,1
+access_peepl_division_bod,access.peepl.division.bod,model_peepl_division,group_peepl_bod,1,1,1,1

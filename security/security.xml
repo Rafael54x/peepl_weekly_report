@@ -58,7 +58,7 @@
     <record id="rule_weekly_report_supervisor" model="ir.rule">
         <field name="name">Supervisor: Division Reports</field>
         <field name="model_id" ref="model_peepl_weekly_report"/>
-        <field name="domain_force">['|', ('pic_id', '=', user.id), '&amp;', ('pic_id.user_assignment_ids.division', '=', user.user_assignment_ids.division), ('pic_id.user_assignment_ids.active', '=', True)]</field>
+        <field name="domain_force">['|', ('pic_id', '=', user.id), '&amp;', ('pic_id.user_assignment_ids.division_id', 'in', user.user_assignment_ids.mapped('division_id').ids), ('pic_id.user_assignment_ids.active', '=', True)]</field>
         <field name="groups" eval="[(4, ref('group_peepl_supervisor'))]"/>
     </record>
 
@@ -92,9 +92,9 @@
     </record>
 
     <record id="rule_user_assignment_supervisor" model="ir.rule">
-        <field name="name">Supervisor: Department &amp; Division Access</field>
+        <field name="name">Supervisor: Division Access</field>
         <field name="model_id" ref="model_peepl_user_assignment"/>
-        <field name="domain_force">['&amp;', ('department_id', 'in', user.weekly_report_department_ids.ids), ('division', '=', user.user_assignment_ids.division)]</field>
+        <field name="domain_force">[('division_id', 'in', user.user_assignment_ids.mapped('division_id').ids)]</field>
         <field name="groups" eval="[(4, ref('group_peepl_supervisor'))]"/>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
@@ -166,7 +166,7 @@
     <record id="rule_pic_overview_supervisor" model="ir.rule">
         <field name="name">Supervisor: Division Only</field>
         <field name="model_id" ref="model_peepl_pic_overview"/>
-        <field name="domain_force">[('user_id.user_assignment_ids.division', '=', user.user_assignment_ids.division), ('user_id.user_assignment_ids.active', '=', True)]</field>
+        <field name="domain_force">[('user_id.user_assignment_ids.division_id', 'in', user.user_assignment_ids.mapped('division_id').ids), ('user_id.user_assignment_ids.active', '=', True)]</field>
         <field name="groups" eval="[(4, ref('group_peepl_supervisor'))]"/>
     </record>
 
@@ -180,6 +180,31 @@
     <record id="rule_pic_overview_bod" model="ir.rule">
         <field name="name">BOD: All Overview</field>
         <field name="model_id" ref="model_peepl_pic_overview"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_peepl_bod'))]"/>
+    </record>
+
+    <!-- ========================================== -->
+    <!-- RECORD RULES: DIVISION                     -->
+    <!-- ========================================== -->
+    
+    <record id="rule_division_supervisor" model="ir.rule">
+        <field name="name">Supervisor: Department Only</field>
+        <field name="model_id" ref="model_peepl_division"/>
+        <field name="domain_force">[('department_id', 'in', user.weekly_report_department_ids.ids)]</field>
+        <field name="groups" eval="[(4, ref('group_peepl_supervisor'))]"/>
+    </record>
+
+    <record id="rule_division_manager" model="ir.rule">
+        <field name="name">Manager: Department Only</field>
+        <field name="model_id" ref="model_peepl_division"/>
+        <field name="domain_force">[('department_id', 'in', user.weekly_report_department_ids.ids)]</field>
+        <field name="groups" eval="[(4, ref('group_peepl_manager'))]"/>
+    </record>
+
+    <record id="rule_division_bod" model="ir.rule">
+        <field name="name">BOD: All Divisions</field>
+        <field name="model_id" ref="model_peepl_division"/>
         <field name="domain_force">[(1, '=', 1)]</field>
         <field name="groups" eval="[(4, ref('group_peepl_bod'))]"/>
     </record>

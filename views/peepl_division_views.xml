@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_peepl_division_tree" model="ir.ui.view">
+        <field name="name">peepl.division.tree</field>
+        <field name="model">peepl.division</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="department_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_peepl_division_form" model="ir.ui.view">
+        <field name="name">peepl.division.form</field>
+        <field name="model">peepl.division</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="allowed_department_ids" invisible="1"/>
+                        <field name="name"/>
+                        <field name="department_id" domain="[('id', 'in', allowed_department_ids)]"/>
+                        <field name="sequence" invisible="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_peepl_division" model="ir.actions.act_window">
+        <field name="name">Divisions</field>
+        <field name="res_model">peepl.division</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_peepl_division"
+              name="Divisions"
+              parent="menu_peepl_weekly_report_configuration"
+              action="action_peepl_division"
+              sequence="7"
+              groups="peepl_weekly_report.group_peepl_supervisor,peepl_weekly_report.group_peepl_manager,peepl_weekly_report.group_peepl_bod"/>
+</odoo>

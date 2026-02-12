@@ -111,8 +111,16 @@
                                 <field name="user_assignment_ids" context="{'default_department_id': department_id}" domain="[('department_id', '=', department_id)]">
                                     <list editable="bottom">
                                         <field name="user_id"/>
-                                        <field name="job_id" string="Job Position"/>
+                                        <field name="job_id" string="Job Position" readonly="1"/>
                                         <field name="assigned_by" readonly="1"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Divisions">
+                                <field name="division_ids" context="{'default_department_id': department_id}" domain="[('department_id', '=', department_id)]">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
                                     </list>
                                 </field>
                             </page>
