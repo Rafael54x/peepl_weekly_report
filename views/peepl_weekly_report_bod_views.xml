@@ -112,6 +112,7 @@
                                     <list editable="bottom">
                                         <field name="user_id"/>
                                         <field name="job_id" string="Job Position" readonly="1"/>
+                                        <field name="division_id"/>
                                         <field name="assigned_by" readonly="1"/>
                                     </list>
                                 </field>

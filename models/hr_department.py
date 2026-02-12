@@ -15,6 +15,12 @@ class HrDepartment(models.Model):
         compute='_compute_weekly_report_count'
     )
 
+    user_assignment_ids = fields.One2many(
+        'peepl.user.assignment',
+        'department_id',
+        string='User Assignments'
+    )
+
     @api.depends('weekly_report_ids')
     def _compute_weekly_report_count(self):
         for dept in self:
