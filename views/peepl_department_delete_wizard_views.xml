@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_peepl_department_delete_wizard_form" model="ir.ui.view">
+        <field name="name">peepl.department.delete.wizard.form</field>
+        <field name="model">peepl.department.delete.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Delete Department Confirmation">
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">
+                        <i class="fa fa-warning"/> Warning: This action cannot be undone!
+                    </h4>
+                    <p>You are about to delete the department: <strong><field name="department_name" readonly="1" class="oe_inline"/></strong></p>
+                    <hr/>
+                    <p class="mb-0">This will permanently delete:</p>
+                    <ul>
+                        <li><strong><field name="employee_count" readonly="1" class="oe_inline"/> employee(s)</strong> assigned to this department</li>
+                        <li><strong><field name="report_count" readonly="1" class="oe_inline"/> weekly report(s)</strong> associated with this department</li>
+                        <li>All related data and configurations</li>
+                    </ul>
+                </div>
+                <field name="department_id" invisible="1"/>
+                <footer>
+                    <button string="Delete Department" name="action_confirm_delete" type="object" class="btn-danger"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

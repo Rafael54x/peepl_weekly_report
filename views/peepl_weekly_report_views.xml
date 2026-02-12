@@ -95,7 +95,7 @@
                 <field name="id" invisible="1"/>
                 <header>
                     <button string="Save" class="btn-primary" type="object" name="action_save_close"/>
-                    <button string="Back" type="button" class="btn btn-secondary" invisible="not id" onclick="if(window.odooBackWithoutValidation) window.odooBackWithoutValidation(); else window.history.back();"/>
+                    <!-- <button string="Back" type="button" class="btn btn-secondary" invisible="not id" onclick="if(window.odooBackWithoutValidation) window.odooBackWithoutValidation(); else window.history.back();"/> -->
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -150,6 +150,7 @@
         <field name="name">Weekly Reports by Department</field>
         <field name="res_model">peepl.weekly.report.department</field>
         <field name="view_mode">kanban,list,form</field>
+        <field name="context">{'create_action': 'hr.hr_department_action'}</field>
     </record>
 
     <menuitem id="menu_peepl_weekly_report_root"

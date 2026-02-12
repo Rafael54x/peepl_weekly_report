@@ -32,3 +32,5 @@ access_peepl_field_template_bod,access.peepl.field.template.bod,model_peepl_fiel
 access_peepl_department_view_staff,peepl.department.view.staff,model_peepl_department_view,group_peepl_staff,1,0,0,0
 access_peepl_department_view_manager,peepl.department.view.manager,model_peepl_department_view,group_peepl_manager,1,0,0,0
 access_peepl_department_view_bod,peepl.department.view.bod,model_peepl_department_view,group_peepl_bod,1,0,0,0
+
+access_peepl_department_delete_wizard_bod,access.peepl.department.delete.wizard.bod,model_peepl_department_delete_wizard,group_peepl_bod,1,1,1,1

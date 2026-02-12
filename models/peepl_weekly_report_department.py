@@ -61,7 +61,15 @@ class PeeplWeeklyReportDepartment(models.Model):
             'target': 'new'
         }
 
-    def write(self, vals):
+    def create(self, vals_list):
+        # Redirect to hr.department create
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'New Department',
+            'res_model': 'hr.department',
+            'view_mode': 'form',
+            'target': 'current',
+        }
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -71,6 +79,28 @@ class PeeplWeeklyReportDepartment(models.Model):
                 'sticky': False,
             }
         }
+
+    def action_delete_department(self):
+        self.ensure_one()
+        department = self.env['hr.department'].sudo().browse(self.department_id.id)
+        if department.exists():
+            employee_count = self.env['hr.employee'].sudo().search_count([('department_id', '=', department.id)])
+            report_count = self.env['peepl.weekly.report'].sudo().search_count([('department_id', '=', department.id)])
+            
+            return {
+                'type': 'ir.actions.act_window',
+                'name': 'Confirm Delete Department',
+                'res_model': 'peepl.department.delete.wizard',
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {
+                    'default_department_id': department.id,
+                    'default_department_name': department.name,
+                    'default_employee_count': employee_count,
+                    'default_report_count': report_count,
+                }
+            }
+        return {'type': 'ir.actions.act_window_close'}
 
     def open_record(self):
         """Override default open to show weekly reports list"""

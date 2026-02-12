@@ -6,7 +6,7 @@
             <field name="name">peepl.weekly.report.department.kanban</field>
             <field name="model">peepl.weekly.report.department</field>
             <field name="arch" type="xml">
-                <kanban class="o_hr_department_kanban o_kanban_small_column" highlight_color="color" create="false" edit="false" delete="false">
+                <kanban class="o_hr_department_kanban o_kanban_small_column" highlight_color="color" edit="false">
                     <field name="department_id"/>
                     <field name="manager_id"/>
                     <field name="company_id"/>
@@ -16,11 +16,11 @@
                             <div class="container">
                                 <div class="row">
                                     <div class="col-6">
-                                        <h5 role="menuitem" class="o_kanban_card_manage_title">
-                                            <span>Settings</span>
-                                        </h5>
                                         <div role="menuitem">
                                             <a name="action_open_configuration" type="object">Configuration</a>
+                                        </div>
+                                        <div role="menuitem">
+                                            <a name="action_delete_department" type="object" class="text-danger">Delete</a>
                                         </div>
                                     </div>
                                 </div>

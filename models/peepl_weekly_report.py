@@ -168,10 +168,16 @@ class PeeplWeeklyReport(models.Model):
     def _compute_status(self):
         today = date.today()
         for record in self:
+            # Skip if manually set to completed
+            if record.status == 'completed':
+                continue
+            
             # Auto-set to overdue if deadline passed and not completed
-            if (record.deadline and record.deadline < today and 
-                record.status != 'completed' and record.status != 'overdue'):
+            if record.deadline and record.deadline < today and record.status != 'completed':
                 record.status = 'overdue'
+            # Auto-change from overdue to delayed if deadline is extended to future
+            elif record._origin.status == 'overdue' and record.deadline and record.deadline >= today:
+                record.status = 'delayed'
 
     @api.model
     def update_overdue_status(self):
@@ -191,9 +197,16 @@ class PeeplWeeklyReport(models.Model):
             self.progress = 100
         elif self.deadline and self.deadline < date.today() and self.status != 'overdue' and self.status != 'completed':
             self.status = 'overdue'
-        # Prevent changing from overdue to other status except completed
-        if self._origin.status == 'overdue' and self.status != 'overdue' and self.status != 'completed':
+        # Prevent changing from overdue to other status except completed and delayed
+        if self._origin.status == 'overdue' and self.status not in ['overdue', 'completed', 'delayed']:
             self.status = 'overdue'
+
+    @api.onchange('deadline')
+    def _onchange_deadline(self):
+        # Auto-change from overdue to delayed if new deadline is after today
+        if self.status == 'overdue' and self.deadline:
+            if self.deadline >= date.today():
+                self.status = 'delayed'
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -202,11 +215,21 @@ class PeeplWeeklyReport(models.Model):
         return records
 
     def write(self, vals):
-        # Prevent changing from overdue to other status except completed
+        # If deadline is changed when status is overdue, check if new deadline is after old deadline
+        if 'deadline' in vals:
+            for record in self:
+                if record.status == 'overdue' and vals['deadline'] and record.deadline:
+                    # Convert string to date if needed
+                    new_deadline = vals['deadline'] if isinstance(vals['deadline'], date) else fields.Date.from_string(vals['deadline'])
+                    if new_deadline > record.deadline:
+                        vals['status'] = 'delayed'
+        
+        # Prevent changing from overdue to other status except completed or delayed
         if 'status' in vals:
             for record in self:
-                if record.status == 'overdue' and vals['status'] != 'completed':
+                if record.status == 'overdue' and vals['status'] not in ['completed', 'delayed']:
                     vals['status'] = 'overdue'
+        
         result = super().write(vals)
         if any(field in vals for field in ['progress', 'pic_id', 'status']):
             self._update_pic_overview()
