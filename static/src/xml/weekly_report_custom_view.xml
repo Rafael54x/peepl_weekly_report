@@ -119,8 +119,8 @@
                         </div>
                     </div>
                     
-                    <div t-else="" class="o_list_renderer o_renderer table-responsive" tabindex="-1" style="max-height: 85vh; overflow-y: auto;">
-                        <table class="o_list_table table table-sm table-hover position-relative mb-0 o_list_table_ungrouped table-striped" style="table-layout: fixed;">
+                    <div t-else="" class="o_list_renderer o_renderer table-responsive" tabindex="-1" style="max-height: 85vh; overflow: auto;">
+                        <table class="o_list_table table table-sm table-hover position-relative mb-0 o_list_table_ungrouped table-striped" style="table-layout: auto;">
                             <thead>
                                 <tr>
                                     
@@ -207,7 +207,7 @@
                                         </td>
                                         
                                         <!-- Notes -->
-                                        <td class="o_data_cell cursor-pointer" data-tooltip-delay="1000" tabindex="-1" name="notes" data-anchor="notes" t-att-data-notes="record.notes">
+                                        <td class="o_data_cell cursor-pointer" data-tooltip-delay="1000" tabindex="-1" name="notes" data-anchor="notes" t-att-data-notes="record.notes" style="max-width: 300px; white-space: normal; word-wrap: break-word;">
                                             <div class="js-notes-content"></div>
                                         </td>
                                     </tr>

@@ -12,5 +12,6 @@
               name="Dashboard"
               parent="menu_peepl_weekly_report_root"
               action="action_peepl_dashboard"
+              groups="group_peepl_manager,group_peepl_bod"
               sequence="5"/>
 </odoo>

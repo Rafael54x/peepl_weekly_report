@@ -43,6 +43,7 @@ Key Features:
     'images': ['static/description/icon.png'],
     'assets': {
         'web.assets_backend': [
+            'peepl_weekly_report/static/src/js/hide_staff_menus.js',
             'peepl_weekly_report/static/src/js/render_notes.js',
             'peepl_weekly_report/static/src/js/column_resize_new.js',
             'peepl_weekly_report/static/src/js/dashboard.js',
