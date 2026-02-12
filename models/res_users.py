@@ -11,6 +11,7 @@ class ResUsers(models.Model):
         compute='_compute_weekly_department_ids',
         string='Weekly Report Departments'
     )
+    user_assignment_ids = fields.One2many('peepl.user.assignment', 'user_id', string='User Assignments')
     
     @api.depends_context('uid')
     def _compute_weekly_department_ids(self):
@@ -27,7 +28,23 @@ class ResUsers(models.Model):
         # Check if this is called from weekly report PIC field
         if self.env.context.get('from_weekly_report_pic'):
             current_user = self.env.user
-            if current_user.has_group('peepl_weekly_report.group_peepl_manager'):
+            if current_user.has_group('peepl_weekly_report.group_peepl_supervisor'):
+                # Supervisor: only users from same division
+                user_assignment = self.env['peepl.user.assignment'].search([
+                    ('user_id', '=', current_user.id),
+                    ('active', '=', True)
+                ], limit=1)
+                if user_assignment and user_assignment.division:
+                    division_assignments = self.env['peepl.user.assignment'].search([
+                        ('division', '=', user_assignment.division),
+                        ('active', '=', True)
+                    ])
+                    allowed_user_ids = division_assignments.mapped('user_id').ids
+                    if allowed_user_ids:
+                        domain = (domain or []) + [('id', 'in', allowed_user_ids)]
+                    else:
+                        domain = (domain or []) + [('id', '=', False)]
+            elif current_user.has_group('peepl_weekly_report.group_peepl_manager'):
                 # Manager: only users from same department
                 user_assignment = self.env['peepl.user.assignment'].search([
                     ('user_id', '=', current_user.id),
@@ -51,7 +68,23 @@ class ResUsers(models.Model):
         # Also filter search_read for Many2one field
         if self.env.context.get('from_weekly_report_pic'):
             current_user = self.env.user
-            if current_user.has_group('peepl_weekly_report.group_peepl_manager'):
+            if current_user.has_group('peepl_weekly_report.group_peepl_supervisor'):
+                # Supervisor: only users from same division
+                user_assignment = self.env['peepl.user.assignment'].search([
+                    ('user_id', '=', current_user.id),
+                    ('active', '=', True)
+                ], limit=1)
+                if user_assignment and user_assignment.division:
+                    division_assignments = self.env['peepl.user.assignment'].search([
+                        ('division', '=', user_assignment.division),
+                        ('active', '=', True)
+                    ])
+                    allowed_user_ids = division_assignments.mapped('user_id').ids
+                    if allowed_user_ids:
+                        domain = (domain or []) + [('id', 'in', allowed_user_ids)]
+                    else:
+                        domain = (domain or []) + [('id', '=', False)]
+            elif current_user.has_group('peepl_weekly_report.group_peepl_manager'):
                 user_assignment = self.env['peepl.user.assignment'].search([
                     ('user_id', '=', current_user.id),
                     ('active', '=', True)

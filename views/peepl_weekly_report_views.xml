@@ -107,9 +107,9 @@
                     
                     <group>
                         <group string="Task Details">
-                            <field name="name" readonly="1" string="Report No."/>
+                            <field name="name" invisible="1"/>
                             <field name="allowed_pic_ids" invisible="1"/>
-                            <field name="pic_id" widget="many2one_avatar_user" domain="[('id', 'in', allowed_pic_ids)]" options="{'no_create': True}"/>
+                            <field name="pic_id" widget="many2one_avatar_user" domain="[('id', 'in', allowed_pic_ids)]" options="{'no_create': True}" context="{'from_weekly_report_pic': True}"/>
                             <field name="department_id" readonly="1"/>
                         </group>
                         <group string="Timeline &amp; Progress">
@@ -170,7 +170,7 @@
               name="Weekly Reports"
               parent="menu_peepl_weekly_report_root"
               action="action_peepl_weekly_report_server"
-              groups="peepl_weekly_report.group_peepl_staff,peepl_weekly_report.group_peepl_manager"
+              groups="peepl_weekly_report.group_peepl_staff,peepl_weekly_report.group_peepl_supervisor,peepl_weekly_report.group_peepl_manager"
               sequence="11"/>
               
 
@@ -178,6 +178,6 @@
               name="PIC Overview"
               parent="menu_peepl_weekly_report_root"
               action="action_peepl_pic_overview"
-              groups="peepl_weekly_report.group_peepl_manager,peepl_weekly_report.group_peepl_bod"
+              groups="peepl_weekly_report.group_peepl_supervisor,peepl_weekly_report.group_peepl_manager,peepl_weekly_report.group_peepl_bod"
               sequence="15"/>
 </odoo>

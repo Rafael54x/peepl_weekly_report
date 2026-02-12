@@ -40,6 +40,7 @@ class WeeklyReportCustomView extends Component {
         
         this.userDepartmentId = null;
         this.isManager = false;
+        this.isSupervisor = false;
         this.isStaff = false;
         this.isBOD = false;
         
@@ -66,8 +67,8 @@ class WeeklyReportCustomView extends Component {
             let finalDeptId = contextDeptId || deptFromUrl;
             let finalDeptName = contextDeptName || deptNameFromUrl;
             
-            // Auto-redirect Manager/Staff to their department if no filter specified
-            if (!finalDeptId && this.userDepartmentId && (this.isManager || this.isStaff)) {
+            // Auto-redirect Manager/Supervisor/Staff to their department if no filter specified
+            if (!finalDeptId && this.userDepartmentId && (this.isManager || this.isSupervisor || this.isStaff)) {
                 finalDeptId = this.userDepartmentId;
                 // Get department name
                 try {
@@ -206,6 +207,17 @@ class WeeklyReportCustomView extends Component {
             
             if (isManager) {
                 this.isManager = true;
+                return;
+            }
+            
+            const isSupervisor = await this.orm.call(
+                "res.users",
+                "has_group",
+                ["peepl_weekly_report.group_peepl_supervisor"]
+            );
+            
+            if (isSupervisor) {
+                this.isSupervisor = true;
                 return;
             }
             

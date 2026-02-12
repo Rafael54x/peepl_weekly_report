@@ -103,7 +103,7 @@ class PeeplWeeklyReport(models.Model):
             current_user = self.env.user
             if current_user.has_group('peepl_weekly_report.group_peepl_bod'):
                 continue
-            elif current_user.has_group('peepl_weekly_report.group_peepl_manager'):
+            elif current_user.has_group('peepl_weekly_report.group_peepl_manager') or current_user.has_group('peepl_weekly_report.group_peepl_supervisor'):
                 manager_assignment = self.env['peepl.user.assignment'].search([
                     ('user_id', '=', current_user.id),
                     ('active', '=', True)
@@ -257,8 +257,8 @@ class PeeplWeeklyReport(models.Model):
             if current_user.has_group('peepl_weekly_report.group_peepl_bod'):
                 # BOD: all departments
                 record.department_filter_ids = self.env['hr.department'].search([])
-            elif current_user.has_group('peepl_weekly_report.group_peepl_manager'):
-                # Manager: only their department
+            elif current_user.has_group('peepl_weekly_report.group_peepl_manager') or current_user.has_group('peepl_weekly_report.group_peepl_supervisor'):
+                # Manager/Supervisor: only their department
                 user_assignment = self.env['peepl.user.assignment'].search([
                     ('user_id', '=', current_user.id),
                     ('active', '=', True)
@@ -278,8 +278,8 @@ class PeeplWeeklyReport(models.Model):
             if current_user.has_group('peepl_weekly_report.group_peepl_bod'):
                 # BOD: all users
                 record.allowed_user_ids = self.env['res.users'].search([])
-            elif current_user.has_group('peepl_weekly_report.group_peepl_manager'):
-                # Manager: only users from same department
+            elif current_user.has_group('peepl_weekly_report.group_peepl_manager') or current_user.has_group('peepl_weekly_report.group_peepl_supervisor'):
+                # Manager/Supervisor: only users from same department
                 user_assignment = self.env['peepl.user.assignment'].search([
                     ('user_id', '=', current_user.id),
                     ('active', '=', True)
@@ -309,8 +309,8 @@ class PeeplWeeklyReport(models.Model):
                 # BOD: all users
                 assigned_users = self.env['peepl.user.assignment'].search([('active', '=', True)]).mapped('user_id')
                 record.allowed_pic_ids = assigned_users
-            elif current_user.has_group('peepl_weekly_report.group_peepl_manager'):
-                # Manager: only users from same department
+            elif current_user.has_group('peepl_weekly_report.group_peepl_manager') or current_user.has_group('peepl_weekly_report.group_peepl_supervisor'):
+                # Manager/Supervisor: only users from same department
                 user_assignment = self.env['peepl.user.assignment'].search([
                     ('user_id', '=', current_user.id),
                     ('active', '=', True)

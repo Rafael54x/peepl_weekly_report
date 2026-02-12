@@ -73,5 +73,5 @@
               parent="menu_peepl_weekly_report_configuration"
               action="action_peepl_field_template"
               sequence="9"
-              groups="peepl_weekly_report.group_peepl_manager,peepl_weekly_report.group_peepl_bod"/>
+              groups="peepl_weekly_report.group_peepl_supervisor,peepl_weekly_report.group_peepl_manager,peepl_weekly_report.group_peepl_bod"/>
 </odoo>
