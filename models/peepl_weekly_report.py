@@ -140,6 +140,20 @@ class PeeplWeeklyReport(models.Model):
         return next_num
 
     def action_save_close(self):
+        dept_filter = self.env.context.get('dept_filter')
+        dept_name = self.env.context.get('dept_name')
+        
+        if dept_filter:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'weekly_report_custom_view',
+                'name': f'Weekly Reports - {dept_name}' if dept_name else 'Weekly Reports',
+                'context': {
+                    'dept_filter': dept_filter,
+                    'dept_name': dept_name,
+                },
+                'target': 'main',
+            }
         return {
             'type': 'ir.actions.client',
             'tag': 'history_back',
@@ -301,14 +315,22 @@ class PeeplWeeklyReport(models.Model):
         """Expand all status groups in kanban view"""
         return [key for key, _ in self._fields['status'].selection]
 
-    @api.depends('create_uid')
+    @api.depends('create_uid', 'department_id')
     def _compute_allowed_pic_ids(self):
         for record in self:
             current_user = self.env.user
             if current_user.has_group('peepl_weekly_report.group_peepl_bod'):
-                # BOD: all users
-                assigned_users = self.env['peepl.user.assignment'].search([('active', '=', True)]).mapped('user_id')
-                record.allowed_pic_ids = assigned_users
+                # BOD: filter by selected department if exists
+                if record.department_id:
+                    dept_assignments = self.env['peepl.user.assignment'].search([
+                        ('department_id', '=', record.department_id.id),
+                        ('active', '=', True)
+                    ])
+                    record.allowed_pic_ids = dept_assignments.mapped('user_id')
+                else:
+                    # No department selected: show all users
+                    assigned_users = self.env['peepl.user.assignment'].search([('active', '=', True)]).mapped('user_id')
+                    record.allowed_pic_ids = assigned_users
             elif current_user.has_group('peepl_weekly_report.group_peepl_manager') or current_user.has_group('peepl_weekly_report.group_peepl_supervisor'):
                 # Manager/Supervisor: only users from same department
                 user_assignment = self.env['peepl.user.assignment'].search([
