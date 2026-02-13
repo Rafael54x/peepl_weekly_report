@@ -27,7 +27,7 @@
                             <!-- Filter by Name -->
                             <div class="d-flex align-items-center gap-2">
                                 <label class="form-label mb-0 fw-bold">Name:</label>
-                                <select class="form-select form-select-sm" style="min-width: 120px;" t-on-change="(e) => { this.onNameFilter(e.target.value); }">
+                                <select class="form-select form-select-sm" style="min-width: 120px;" t-model="state.searchTerm" t-on-change="(e) => { this.onNameFilter(e.target.value); }">
                                     <option value="">All Names</option>
                                     <t t-foreach="state.uniqueNames" t-as="name" t-key="name">
                                         <option t-att-value="name" t-esc="name"></option>
@@ -38,7 +38,7 @@
                             <!-- Filter by Department -->
                             <div class="d-flex align-items-center gap-2">
                                 <label class="form-label mb-0 fw-bold">Dept:</label>
-                                <select class="form-select form-select-sm" style="min-width: 120px;" t-on-change="(e) => { this.onDepartmentFilter(e.target.value); }">
+                                <select class="form-select form-select-sm" style="min-width: 120px;" t-model="state.departmentFilter" t-on-change="(e) => { this.onDepartmentFilter(e.target.value); }">
                                     <option value="">All Departments</option>
                                     <t t-foreach="state.uniqueDepartments" t-as="dept" t-key="dept">
                                         <option t-att-value="dept" t-esc="dept"></option>

@@ -23,7 +23,7 @@
                         <!-- Center: Filter -->
                         <div class="d-flex align-items-center justify-content-center gap-2 order-1">
                             <label class="form-label mb-0 fw-bold">Filter:</label>
-                            <select class="form-select form-select-sm" style="min-width: 200px;" t-on-change="(e) => { this.onNameFilter(e.target.value); }">
+                            <select class="form-select form-select-sm" style="min-width: 200px;" t-model="state.searchTerm" t-on-change="(e) => { this.onNameFilter(e.target.value); }">
                                 <option value="">All Names</option>
                                 <t t-foreach="state.uniqueNames" t-as="name" t-key="name">
                                     <option t-att-value="name" t-esc="name"></option>

@@ -40,11 +40,11 @@ class PicOverviewCustomView extends Component {
     async loadRecords() {
         this.state.loading = true;
         try {
-            // Apply filters
+            // Apply filters only if explicitly set in URL
             let domain = [];
             const urlParams = new URLSearchParams(window.location.search);
-            const nameFilter = urlParams.get('name_filter') || this.state.searchTerm;
-            const deptFilter = urlParams.get('dept_filter_pic') || this.state.departmentFilter;
+            const nameFilter = urlParams.get('name_filter');
+            const deptFilter = urlParams.get('dept_filter_pic');
             
             if (nameFilter) {
                 domain.push(["user_id.name", "=", nameFilter]);
@@ -76,10 +76,18 @@ class PicOverviewCustomView extends Component {
                 domain
             );
             
+            // Get ALL records for filter dropdowns (not just current page)
+            const allRecords = await this.orm.searchRead(
+                "peepl.pic.overview",
+                [],
+                ["user_id", "department_id"],
+                {}
+            );
+            
             // Extract unique names and departments for filter dropdowns
             const uniqueNamesSet = new Set();
             const uniqueDepartmentsSet = new Set();
-            records.forEach(record => {
+            allRecords.forEach(record => {
                 if (record.user_id && record.user_id[1]) {
                     uniqueNamesSet.add(record.user_id[1]);
                 }
@@ -196,12 +204,13 @@ class PicOverviewCustomView extends Component {
         const url = new URL(window.location);
         if (name) {
             url.searchParams.set('name_filter', name);
+            this.state.searchTerm = name;
         } else {
             url.searchParams.delete('name_filter');
+            this.state.searchTerm = "";
         }
         window.history.replaceState({}, '', url);
         
-        this.state.searchTerm = name;
         this.state.currentPage = 1;
         this.loadRecords();
     }
@@ -210,12 +219,13 @@ class PicOverviewCustomView extends Component {
         const url = new URL(window.location);
         if (dept) {
             url.searchParams.set('dept_filter_pic', dept);
+            this.state.departmentFilter = dept;
         } else {
             url.searchParams.delete('dept_filter_pic');
+            this.state.departmentFilter = "";
         }
         window.history.replaceState({}, '', url);
         
-        this.state.departmentFilter = dept;
         this.state.currentPage = 1;
         this.loadRecords();
     }
@@ -229,12 +239,6 @@ class PicOverviewCustomView extends Component {
         this.state.searchTerm = "";
         this.state.departmentFilter = "";
         this.state.currentPage = 1;
-        
-        // Reset dropdowns
-        const selects = this.el?.querySelectorAll('select');
-        if (selects) {
-            selects.forEach(select => select.value = "");
-        }
         
         this.loadRecords();
     }

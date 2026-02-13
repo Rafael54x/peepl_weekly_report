@@ -403,8 +403,23 @@ class WeeklyReportCustomView extends Component {
                 record.display_number = index + 1;
             });
             
+            // Get ALL names from department for dropdown (not just filtered)
+            let allNamesDomain = [];
+            const urlParams = new URLSearchParams(window.location.search);
+            const deptFilter = urlParams.get('dept_filter');
+            if (deptFilter) {
+                allNamesDomain.push(["department_id", "=", parseInt(deptFilter)]);
+            }
+            
+            const allRecords = await this.orm.searchRead(
+                "peepl.weekly.report",
+                allNamesDomain,
+                ["pic_id"],
+                {}
+            );
+            
             const uniqueNamesSet = new Set();
-            records.forEach(record => {
+            allRecords.forEach(record => {
                 if (record.pic_id && record.pic_id[1]) {
                     uniqueNamesSet.add(record.pic_id[1]);
                 }
@@ -546,12 +561,13 @@ class WeeklyReportCustomView extends Component {
         const url = new URL(window.location);
         if (name) {
             url.searchParams.set('name_filter', name);
+            this.state.searchTerm = name;
         } else {
             url.searchParams.delete('name_filter');
+            this.state.searchTerm = "";
         }
         window.history.replaceState({}, '', url);
         
-        this.state.searchTerm = name;
         this.state.currentPage = 1;
         this.loadRecords();
     }
@@ -563,10 +579,6 @@ class WeeklyReportCustomView extends Component {
         
         this.state.searchTerm = "";
         this.state.currentPage = 1;
-        
-        // Reset dropdown
-        const select = this.el?.querySelector('select');
-        if (select) select.value = "";
         
         this.loadRecords();
     }
