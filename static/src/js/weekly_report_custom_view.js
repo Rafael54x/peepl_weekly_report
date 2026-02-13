@@ -128,6 +128,7 @@ class WeeklyReportCustomView extends Component {
         onMounted(() => {
             this.setupEventListeners();
             this.renderNotesContent();
+            this.preserveUrlParams();
             // Don't call preserveUrlParams here - it overrides name_filter
             this.applyColumnVisibility();
         });
