@@ -184,7 +184,7 @@
                             
                             <tbody class="ui-sortable">
                                 <t t-foreach="state.records" t-as="record" t-key="record.id">
-                                    <tr class="o_data_row" t-att-data-id="'datapoint_' + record.id">
+                                    <tr class="o_data_row" t-att-data-id="'datapoint_' + record.id" t-on-click="() => this.openUserReports(record)" style="cursor: pointer;">
                                         
                                         <!-- User -->
                                         <td class="o_data_cell o_field_cell o_list_many2one" data-tooltip-delay="1000" tabindex="-1" name="user_id" t-att-data-tooltip="record.user_id and record.user_id[1]" t-esc="record.user_id and record.user_id[1]"></td>

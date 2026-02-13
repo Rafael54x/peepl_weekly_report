@@ -254,7 +254,25 @@ class PicOverviewCustomView extends Component {
         }, 100);
     }
     
-
+    async openUserReports(record) {
+        // Get user's department
+        const deptId = record.department_id ? record.department_id[0] : null;
+        const deptName = record.department_id ? record.department_id[1] : null;
+        const userName = record.user_id[1];
+        
+        // Build URL with filters
+        let url = '/odoo/action-976/3/weekly_report_custom_view';
+        const params = new URLSearchParams();
+        
+        if (deptId) {
+            params.set('dept_filter', deptId);
+            params.set('dept_name', deptName);
+        }
+        params.set('name_filter', userName);
+        
+        // Navigate to URL
+        window.location.href = `${url}?${params.toString()}`;
+    }
 }
 
 registry.category("actions").add("pic_overview_custom_view", PicOverviewCustomView);

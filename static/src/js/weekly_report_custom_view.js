@@ -59,6 +59,7 @@ class WeeklyReportCustomView extends Component {
             const urlParams = new URLSearchParams(window.location.search);
             const deptFromUrl = urlParams.get('dept_filter');
             const deptNameFromUrl = urlParams.get('dept_name');
+            const nameFilterFromUrl = urlParams.get('name_filter');
             
             // Use context values if available, otherwise use URL params
             const contextDeptId = this.props.action?.context?.dept_filter;
@@ -66,6 +67,11 @@ class WeeklyReportCustomView extends Component {
             
             let finalDeptId = contextDeptId || deptFromUrl;
             let finalDeptName = contextDeptName || deptNameFromUrl;
+            
+            // Set name filter from URL
+            if (nameFilterFromUrl) {
+                this.state.searchTerm = nameFilterFromUrl;
+            }
             
             // Auto-redirect Manager/Supervisor/Staff to their department if no filter specified
             if (!finalDeptId && this.userDepartmentId && (this.isManager || this.isSupervisor || this.isStaff)) {
@@ -90,6 +96,9 @@ class WeeklyReportCustomView extends Component {
                     const newUrl = new URL(window.location);
                     newUrl.searchParams.set('dept_filter', finalDeptId);
                     newUrl.searchParams.set('dept_name', finalDeptName);
+                    if (nameFilterFromUrl) {
+                        newUrl.searchParams.set('name_filter', nameFilterFromUrl);
+                    }
                     window.location.href = newUrl.toString();
                     return; // Stop execution, page will reload
                 }
@@ -100,6 +109,9 @@ class WeeklyReportCustomView extends Component {
                 const url = new URL(window.location);
                 url.searchParams.set('dept_filter', finalDeptId);
                 url.searchParams.set('dept_name', finalDeptName);
+                if (nameFilterFromUrl) {
+                    url.searchParams.set('name_filter', nameFilterFromUrl);
+                }
                 window.history.replaceState({}, '', url);
                 
                 // Update context
@@ -116,7 +128,7 @@ class WeeklyReportCustomView extends Component {
         onMounted(() => {
             this.setupEventListeners();
             this.renderNotesContent();
-            this.preserveUrlParams();
+            // Don't call preserveUrlParams here - it overrides name_filter
             this.applyColumnVisibility();
         });
     }
@@ -256,15 +268,27 @@ class WeeklyReportCustomView extends Component {
         const contextDeptId = this.props.action?.context?.dept_filter;
         const contextDeptName = this.props.action?.context?.dept_name;
         
+        // Get name filter from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const nameFilter = urlParams.get('name_filter');
+        
         // Monitor URL changes and preserve current department params
         const observer = new MutationObserver(() => {
             const currentUrl = new URL(window.location);
             const urlDeptId = currentUrl.searchParams.get('dept_filter');
+            const urlNameFilter = currentUrl.searchParams.get('name_filter');
             
             // Only update URL if it doesn't match current context
             if (contextDeptId && (!urlDeptId || urlDeptId != contextDeptId)) {
                 currentUrl.searchParams.set('dept_filter', contextDeptId);
                 currentUrl.searchParams.set('dept_name', contextDeptName || '');
+                if (nameFilter) {
+                    currentUrl.searchParams.set('name_filter', nameFilter);
+                }
+                window.history.replaceState({}, '', currentUrl);
+            } else if (nameFilter && !urlNameFilter) {
+                // Preserve name filter if it's missing
+                currentUrl.searchParams.set('name_filter', nameFilter);
                 window.history.replaceState({}, '', currentUrl);
             }
         });

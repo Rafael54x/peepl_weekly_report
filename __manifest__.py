@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Peepl Report - Weekly Report',
-    'version': '19.0.1.0.10',
+    'version': '19.0.1.0.11',
     'category': 'report/Projects',
     'summary': 'Weekly Report',
     'description': """
