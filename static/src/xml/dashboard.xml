@@ -60,14 +60,14 @@
                                                placeholder="Search by name..." 
                                                t-on-input="onSearchChange"
                                                t-model="state.searchQuery"/>
-                                        <select class="form-select" t-on-change="onDepartmentFilter">
+                                        <select class="form-select" t-model="state.filterDepartment" t-on-change="onDepartmentFilter">
                                             <option value="">All Departments</option>
                                             <t t-foreach="uniqueDepartments" t-as="dept" t-key="dept">
                                                 <option t-att-value="dept"><t t-esc="dept"/></option>
                                             </t>
                                         </select>
-                                        <select class="form-select" t-on-change="onRoleFilter">
-                                            <option value="">All Employment Types</option>
+                                        <select class="form-select" t-model="state.filterRole" t-on-change="onRoleFilter">
+                                            <option value="">All Divisions</option>
                                             <t t-foreach="uniqueRoles" t-as="role" t-key="role">
                                                 <option t-att-value="role"><t t-esc="role"/></option>
                                             </t>
@@ -146,9 +146,9 @@
                                                     Department 
                                                     <i t-att-class="'fa fa-sort' + (state.sortField === 'department_name' ? (state.sortOrder === 'asc' ? '-up' : '-down') : '')"></i>
                                                 </th>
-                                                <th class="sortable" t-on-click="() => this.sortData('job_position')">
-                                                    Employment Types 
-                                                    <i t-att-class="'fa fa-sort' + (state.sortField === 'job_position' ? (state.sortOrder === 'asc' ? '-up' : '-down') : '')"></i>
+                                                <th class="sortable" t-on-click="() => this.sortData('division_name')">
+                                                    Division 
+                                                    <i t-att-class="'fa fa-sort' + (state.sortField === 'division_name' ? (state.sortOrder === 'asc' ? '-up' : '-down') : '')"></i>
                                                 </th>
                                                 <th class="sortable" t-on-click="() => this.sortData('total_tasks')">
                                                     Total 
@@ -185,7 +185,7 @@
                                                 <tr>
                                                     <td><t t-esc="pic.user_id[1]"/></td>
                                                     <td><t t-esc="pic.department_name"/></td>
-                                                    <td><span class="badge badge-role"><t t-esc="pic.job_position || 'No Position'"/></span></td>
+                                                    <td><span class="badge badge-role"><t t-esc="pic.division_name || '-'"/></span></td>
                                                     <td><span class="badge badge-number"><t t-esc="pic.total_tasks"/></span></td>
                                                     <td><span class="badge badge-number"><t t-esc="pic.completed"/></span></td>
                                                     <td><span class="badge badge-number"><t t-esc="pic.in_progress"/></span></td>

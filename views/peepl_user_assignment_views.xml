@@ -24,10 +24,11 @@
                         <field name="allowed_user_ids" invisible="1"/>
                         <field name="allowed_job_ids" invisible="1"/>
                         <field name="allowed_department_ids" invisible="1"/>
+                        <field name="allowed_division_ids" invisible="1"/>
                         <field name="user_id" domain="[('id', 'in', allowed_user_ids)]"/>
                         <field name="job_id" string="Job Position" domain="[('id', 'in', allowed_job_ids)]" readonly="1"/>
                         <field name="department_id" domain="[('id', 'in', allowed_department_ids)]" readonly="1"/>
-                        <field name="division_id"/>
+                        <field name="division_id" domain="[('id', 'in', allowed_division_ids)]"/>
                         <field name="assigned_by" readonly="1"/>
                     </group>
                     

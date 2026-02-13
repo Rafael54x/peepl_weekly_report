@@ -11,6 +11,7 @@ class PeeplUserAssignment(models.Model):
     allowed_user_ids = fields.Many2many('res.users', compute='_compute_allowed_users', compute_sudo=True)
     allowed_job_ids = fields.Many2many('hr.job', compute='_compute_allowed_jobs', compute_sudo=True)
     allowed_department_ids = fields.Many2many('hr.department', compute='_compute_allowed_departments', compute_sudo=True)
+    allowed_division_ids = fields.Many2many('peepl.division', compute='_compute_allowed_divisions', compute_sudo=True)
     job_id = fields.Many2one('hr.job', string='Job Position', required=True)
     department_id = fields.Many2one('hr.department', string='Department')
     division_id = fields.Many2one('peepl.division', string='Division')
@@ -86,6 +87,8 @@ class PeeplUserAssignment(models.Model):
                     self.department_id = employee.department_id.id
                 if employee.job_id:
                     self.job_id = employee.job_id.id
+                # Clear division when user changes
+                self.division_id = False
                 return
             
             # Fallback to existing assignment
@@ -99,6 +102,9 @@ class PeeplUserAssignment(models.Model):
                     self.department_id = existing_assignment.department_id.id
                 if existing_assignment.job_id:
                     self.job_id = existing_assignment.job_id.id
+            
+            # Clear division when user changes
+            self.division_id = False
 
     @api.constrains('job_id', 'department_id')
     def _check_assignment_rules(self):
@@ -199,6 +205,26 @@ class PeeplUserAssignment(models.Model):
                 'message': f'Successfully synced {len(assignments)} user assignments with access groups',
             }
         }
+
+    @api.depends('user_id', 'department_id')
+    def _compute_allowed_divisions(self):
+        for record in self:
+            if record.department_id:
+                # Filter divisions by department
+                record.allowed_division_ids = self.env['peepl.division'].sudo().search([
+                    ('department_id', '=', record.department_id.id)
+                ])
+            elif record.user_id:
+                # Get department from user's employee record
+                employee = self.env['hr.employee'].sudo().search([('user_id', '=', record.user_id.id)], limit=1)
+                if employee and employee.department_id:
+                    record.allowed_division_ids = self.env['peepl.division'].sudo().search([
+                        ('department_id', '=', employee.department_id.id)
+                    ])
+                else:
+                    record.allowed_division_ids = self.env['peepl.division']
+            else:
+                record.allowed_division_ids = self.env['peepl.division']
 
     @api.depends_context('uid')
     def _compute_allowed_departments(self):

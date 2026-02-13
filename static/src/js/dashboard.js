@@ -123,11 +123,11 @@ export class PeeplDashboard extends Component {
             ["name"]
         );
         
-        // Load all assignments (filtered by record rules)
+        // Load all assignments with division (filtered by record rules)
         const assignments = await this.orm.searchRead(
             "peepl.user.assignment",
             [["active", "=", true]],
-            ["user_id", "department_id"]
+            ["user_id", "department_id", "division_id"]
         );
         
         this.state.allAssignments = assignments;
@@ -135,10 +135,11 @@ export class PeeplDashboard extends Component {
     }
 
     setupCommonData(assignments) {
-        // Map department to picData
+        // Map department and division to picData
         this.state.picData.forEach(pic => {
             const assignment = assignments.find(a => a.user_id[0] === pic.user_id[0]);
             pic.department_name = assignment && assignment.department_id ? assignment.department_id[1] : '-';
+            pic.division_name = assignment && assignment.division_id ? assignment.division_id[1] : '-';
         });
 
         this.state.filteredPicData = [...this.state.picData];
@@ -288,15 +289,15 @@ export class PeeplDashboard extends Component {
     filterData() {
         const query = this.state.searchQuery;
         const dept = this.state.filterDepartment;
-        const role = this.state.filterRole;
+        const division = this.state.filterRole; // filterRole now holds division
         const status = this.state.filterStatus;
         
         this.state.filteredPicData = this.state.picData.filter(pic => {
             const matchName = pic.user_id[1].toLowerCase().includes(query);
             const matchDept = !dept || pic.department_name === dept;
-            const matchRole = !role || pic.job_position === role;
+            const matchDivision = !division || pic.division_name === division;
             const matchStatus = !status || this.hasStatus(pic, status);
-            return matchName && matchDept && matchRole && matchStatus;
+            return matchName && matchDept && matchDivision && matchStatus;
         });
         this.state.currentPage = 1;
     }
@@ -317,11 +318,35 @@ export class PeeplDashboard extends Component {
     }
 
     get uniqueDepartments() {
-        return [...new Set(this.state.picData.map(p => p.department_name).filter(d => d !== '-'))];
+        // Return all departments from state.departments, not just from picData
+        return this.state.departments.map(d => d.name).sort();
     }
 
     get uniqueRoles() {
-        return [...new Set(this.state.picData.map(p => p.job_position).filter(r => r && r !== 'No Position'))];
+        // Get all divisions from all assignments
+        const divisions = new Set();
+        
+        if (this.state.allAssignments) {
+            this.state.allAssignments.forEach(assignment => {
+                if (assignment.division_id) {
+                    divisions.add(assignment.division_id[1]);
+                }
+            });
+        }
+        
+        // Filter by selected department if any
+        const dept = this.state.filterDepartment;
+        if (dept) {
+            const filteredDivisions = new Set();
+            this.state.allAssignments.forEach(assignment => {
+                if (assignment.department_id && assignment.department_id[1] === dept && assignment.division_id) {
+                    filteredDivisions.add(assignment.division_id[1]);
+                }
+            });
+            return [...filteredDivisions].filter(d => d).sort();
+        }
+        
+        return [...divisions].filter(d => d).sort();
     }
 
     get paginatedData() {
