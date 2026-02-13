@@ -235,20 +235,31 @@ class PeeplUserAssignment(models.Model):
             else:
                 record.allowed_job_ids = self.env['hr.job']
 
-    @api.depends_context('uid')
+    @api.depends_context('uid', 'default_department_id')
     def _compute_allowed_users(self):
         import logging
         _logger = logging.getLogger(__name__)
         
         for record in self:
-            current_user = self.env.user
-            assigned_user_ids = self.sudo().search([('active', '=', True)]).mapped('user_id').ids
-            
-            if current_user.has_group('peepl_weekly_report.group_peepl_bod'):
-                record.allowed_user_ids = self.env['res.users'].sudo().search([('id', 'not in', assigned_user_ids)])
-            elif current_user.has_group('peepl_weekly_report.group_peepl_supervisor'):
-                # Supervisor: only users from same department (not division)
-                try:
+            try:
+                current_user = self.env.user
+                assigned_user_ids = self.sudo().search([('active', '=', True)]).mapped('user_id').ids
+                
+                # Check if we're in department configuration context
+                context_dept_id = self.env.context.get('default_department_id')
+                
+                if context_dept_id:
+                    # Filter users by the department from context
+                    dept_employees = self.env['hr.employee'].sudo().search([
+                        ('department_id', '=', context_dept_id),
+                        ('user_id', '!=', False),
+                        ('user_id', 'not in', assigned_user_ids)
+                    ])
+                    record.allowed_user_ids = dept_employees.mapped('user_id')
+                elif current_user.has_group('peepl_weekly_report.group_peepl_bod'):
+                    record.allowed_user_ids = self.env['res.users'].sudo().search([('id', 'not in', assigned_user_ids)])
+                elif current_user.has_group('peepl_weekly_report.group_peepl_supervisor'):
+                    # Supervisor: only users from same department (not division)
                     supervisor_assignment = self.sudo().search([('user_id', '=', current_user.id), ('active', '=', True)], limit=1)
                     if supervisor_assignment and supervisor_assignment.department_id:
                         dept_employees = self.env['hr.employee'].sudo().search([
@@ -259,11 +270,7 @@ class PeeplUserAssignment(models.Model):
                         record.allowed_user_ids = dept_employees.mapped('user_id')
                     else:
                         record.allowed_user_ids = self.env['res.users']
-                except Exception as e:
-                    _logger.exception("Error computing allowed users for supervisor: %s", e)
-                    record.allowed_user_ids = self.env['res.users']
-            elif current_user.has_group('peepl_weekly_report.group_peepl_manager'):
-                try:
+                elif current_user.has_group('peepl_weekly_report.group_peepl_manager'):
                     manager_employee = self.env['hr.employee'].sudo().search([('user_id', '=', current_user.id)], limit=1)
                     if manager_employee and manager_employee.department_id:
                         # Optimized: get all employees from same department at once
@@ -275,11 +282,11 @@ class PeeplUserAssignment(models.Model):
                         record.allowed_user_ids = dept_employees.mapped('user_id')
                     else:
                         record.allowed_user_ids = self.env['res.users']
-                except Exception as e:
-                    _logger.exception("Error computing allowed users for manager: %s", e)
-                    record.allowed_user_ids = self.env['res.users']
-            else:
-                if current_user.id not in assigned_user_ids:
-                    record.allowed_user_ids = current_user
                 else:
-                    record.allowed_user_ids = self.env['res.users']
+                    if current_user.id not in assigned_user_ids:
+                        record.allowed_user_ids = current_user
+                    else:
+                        record.allowed_user_ids = self.env['res.users']
+            except Exception as e:
+                _logger.exception("Error computing allowed users: %s", e)
+                record.allowed_user_ids = self.env['res.users']

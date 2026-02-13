@@ -108,7 +108,7 @@
                                 </field>
                             </page>
                             <page string="User Assignments">
-                                <field name="user_assignment_ids" context="{'default_department_id': department_id}" domain="[('department_id', '=', department_id)]">
+                                <field name="user_assignment_ids" context="{'default_department_id': department_id, 'filter_department_id': department_id}" domain="[('department_id', '=', department_id)]">
                                     <list editable="bottom">
                                         <field name="user_id"/>
                                         <field name="job_id" string="Job Position" readonly="1"/>

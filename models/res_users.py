@@ -40,7 +40,18 @@ class ResUsers(models.Model):
 
     @api.model
     def name_search(self, name='', domain=None, operator='ilike', limit=100):
-        if self.env.context.get('from_weekly_report_pic'):
+        # Filter by department from department configuration
+        if self.env.context.get('filter_department_id'):
+            dept_id = self.env.context.get('filter_department_id')
+            assigned_user_ids = self.env['peepl.user.assignment'].sudo().search([('active', '=', True)]).mapped('user_id').ids
+            dept_employees = self.env['hr.employee'].sudo().search([
+                ('department_id', '=', dept_id),
+                ('user_id', '!=', False),
+                ('user_id', 'not in', assigned_user_ids)
+            ])
+            allowed_user_ids = dept_employees.mapped('user_id').ids
+            domain = (domain or []) + [('id', 'in', allowed_user_ids or [False])]
+        elif self.env.context.get('from_weekly_report_pic'):
             current_user = self.env.user
             if current_user.has_group('peepl_weekly_report.group_peepl_supervisor'):
                 user_assignment = self.env['peepl.user.assignment'].search([
