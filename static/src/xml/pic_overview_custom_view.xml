@@ -88,7 +88,7 @@
                         </div>
                     </div>
                     
-                    <div t-else="" class="o_list_renderer o_renderer table-responsive" tabindex="-1" style="max-height: 85vh; overflow-y: auto;">
+                    <div t-else="" class="o_list_renderer o_renderer table-responsive" tabindex="-1" style="max-height: 85vh; overflow: auto;">
                         <table class="o_list_table table table-sm table-hover position-relative mb-0 o_list_table_ungrouped table-striped" style="table-layout: fixed;">
                             <thead>
                                 <tr>
