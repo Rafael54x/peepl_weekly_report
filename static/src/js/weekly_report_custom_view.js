@@ -268,28 +268,16 @@ class WeeklyReportCustomView extends Component {
         // Get current department from context (newly clicked department)
         const contextDeptId = this.props.action?.context?.dept_filter;
         const contextDeptName = this.props.action?.context?.dept_name;
-        
-        // Get name filter from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const nameFilter = urlParams.get('name_filter');
-        
+
         // Monitor URL changes and preserve current department params
         const observer = new MutationObserver(() => {
             const currentUrl = new URL(window.location);
             const urlDeptId = currentUrl.searchParams.get('dept_filter');
-            const urlNameFilter = currentUrl.searchParams.get('name_filter');
             
             // Only update URL if it doesn't match current context
             if (contextDeptId && (!urlDeptId || urlDeptId != contextDeptId)) {
                 currentUrl.searchParams.set('dept_filter', contextDeptId);
                 currentUrl.searchParams.set('dept_name', contextDeptName || '');
-                if (nameFilter) {
-                    currentUrl.searchParams.set('name_filter', nameFilter);
-                }
-                window.history.replaceState({}, '', currentUrl);
-            } else if (nameFilter && !urlNameFilter) {
-                // Preserve name filter if it's missing
-                currentUrl.searchParams.set('name_filter', nameFilter);
                 window.history.replaceState({}, '', currentUrl);
             }
         });
