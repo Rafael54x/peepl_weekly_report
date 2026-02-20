@@ -31,15 +31,9 @@ Comprehensive weekly reporting system for Odoo 19 with advanced project manageme
 - **Template-based custom fields** - Create fields without coding
 - **Supported field types:**
   - Text (single line)
-  - Multiline Text (textarea)
-  - Integer
-  - Decimal
-  - Checkbox (boolean)
-  - Date
-  - DateTime
   - Dropdown (selection)
-  - Many2one (relational)
 - **Department-based field visibility** - Fields only appear for assigned departments
+- **Flexible field positioning** - Choose anchor field (PIC, Project/Task, Status, Progress, Deadline, Notes) and position (before/after)
 - **Auto-refresh** - Browser automatically reloads after field template changes
 - **Dynamic view injection** - Fields automatically appear in forms and lists
 
@@ -65,22 +59,26 @@ Comprehensive weekly reporting system for Odoo 19 with advanced project manageme
 - Quick access to reports
 - Mobile-responsive design
 
-### 5. Department-Based Access Control
-- **BOD (Board of Directors):** Full access to all departments
-- **Manager:** Access only to their department's data
-- **Staff:** Access only to their own data
-- Automatic filtering based on `hr.employee` department assignment
+### 5. Role-Based Access Control
+- **BOD (All Access):** Full access to all departments and divisions
+- **Manager:** Access to entire department data
+- **Supervisor:** Access to division-level data within department
+- **User (Staff):** Access only to their own data
+- Automatic filtering based on `hr.employee` department and division assignment
 - Smart menu hiding (BOD sees department view, others see standard view)
-- Context-aware PIC field filtering for managers
+- Context-aware PIC field filtering based on role
+- Division-based data segregation for supervisors
 
 ### 6. User Assignment System
-- Link users to departments and positions
-- Auto-populate department from HR employee records
-- Position-based role assignment (Staff, Manager, BOD)
+- Link users to departments, divisions, and job positions
+- Auto-populate department and job from HR employee records
+- Division filtering based on selected department
+- Position-based role assignment (User, Supervisor, Manager, All Access)
 - Active/inactive status tracking
 - Assignment history
 - Batch synchronization of user groups
 - Automatic group assignment based on position
+- Division users display for managers and BOD
 
 ### 7. Advanced UI Features
 - **Column Resizing:** Interactive column width adjustment in list views
@@ -90,14 +88,24 @@ Comprehensive weekly reporting system for Odoo 19 with advanced project manageme
 - **Avatar Integration:** User avatars in employee fields
 - **Responsive Design:** Mobile-friendly interface
 
-### 8. Department Overview System
+### 8. Department & Division System
 - **Kanban Department View:** Visual department cards for BOD
 - **Department Statistics:** Real-time report counts per department
 - **Department Configuration:** Integrated field template and user management
+- **Division Management:** Create divisions within departments
+- **Division-based Access:** Supervisors access only their division data
 - **Department Filtering:** Context-aware data segregation
 - **Manager Integration:** HR department manager display
+- **Dashboard Division Filter:** Dynamic division filtering based on selected department
 
-### 9. Configuration & Settings
+### 9. Interactive PIC Overview
+- **Clickable Rows:** Click any user row to view their weekly reports
+- **URL Parameter Preservation:** Maintains filters when navigating
+- **Scrollable Table:** Horizontal and vertical overflow support
+- **Real-time Statistics:** Auto-updates on report changes
+- **Role-based Filtering:** Shows data based on user access level
+
+### 10. Configuration & Settings
 - **System Settings:** Email configuration and auto-send options
 - **User Role Display:** Current user access level indicator
 - **Default Field Reference:** Built-in field documentation
@@ -108,30 +116,42 @@ Comprehensive weekly reporting system for Odoo 19 with advanced project manageme
 
 ## User Roles & Permissions
 
-### BOD (Board of Directors)
+### BOD (All Access)
 **Access Level:** Full System Access
-- View all weekly reports across all departments
+- View all weekly reports across all departments and divisions
 - View all PIC overviews
 - View all field templates
-- Manage user assignments for all departments
+- Manage user assignments for all departments and divisions
 - Create/edit/delete all records
 - Access all dashboard data
+- Assign any job position including Manager and BOD
 
 ### Manager
-**Access Level:** Department-Specific Access
-- View weekly reports from their department only
-- View PIC overview for users in their department
+**Access Level:** Department-Wide Access
+- View weekly reports from entire department (all divisions)
+- View PIC overview for all users in department
 - View field templates assigned to their department
 - Manage user assignments within their department
 - Create/edit weekly reports for department users
 - Access dashboard filtered by department
+- Cannot assign Manager or BOD positions
 
-### Staff
+### Supervisor
+**Access Level:** Division-Specific Access
+- View weekly reports from their division only
+- View PIC overview for users in their division
+- View field templates assigned to their department
+- Manage user assignments within their division
+- Create/edit weekly reports for division users
+- Access dashboard filtered by division
+- Cannot assign Manager, Supervisor, or BOD positions
+
+### User (Staff)
 **Access Level:** Personal Access Only
 - View and manage only their own weekly reports
 - View only their own PIC overview
 - View field templates assigned to their department
-- Cannot manage user assignments
+- Can read all user assignments (read-only)
 - Create/edit their own weekly reports
 - Access personal dashboard data
 
@@ -201,25 +221,35 @@ Comprehensive weekly reporting system for Odoo 19 with advanced project manageme
 - Automatic: Triggered on weekly report changes
 - Batch: `update_all_stats()` recalculates all users
 
+**Interactive Features:**
+- Click any row to view user's weekly reports
+- Preserves URL filters when navigating
+- Horizontal and vertical scrolling support
+
 ### 4. User Assignment (`peepl.user.assignment`)
-**Purpose:** Link users to departments and positions
+**Purpose:** Link users to departments, divisions, and job positions
 
 **Key Fields:**
 - `user_id` - User reference
-- `position_id` - Employment type (hr.contract.type)
+- `job_id` - Job position (hr.job)
 - `department_id` - Department assignment
+- `division_id` - Division assignment (filtered by department)
+- `allowed_division_ids` - Computed field for division filtering
+- `division_users` - HTML display of division members
 - `assigned_by` - Who created the assignment
 - `active` - Status flag
 
 **Auto-Population:**
-- Reads department from `hr.employee` if available
+- Reads department and job from `hr.employee` if available
 - Falls back to existing assignments
 - BOD positions automatically clear department
+- Division cleared when user changes
 
 **Validation Rules:**
 - Department required for non-BOD positions
-- Manager can only assign Staff to their department
-- BOD can assign anyone to any department
+- Supervisor can only assign users to their division
+- Manager can only assign users to their department (cannot assign Manager/BOD)
+- BOD can assign anyone to any department/division
 
 ### 5. Dashboard (`peepl.dashboard`)
 **Purpose:** Analytics and visualizations
@@ -274,16 +304,35 @@ Comprehensive weekly reporting system for Odoo 19 with advanced project manageme
 - `weekly_report_ids` - Related weekly reports
 - `weekly_report_count` - Computed report count
 
-### 10. User Extension (`res.users`)
-**Purpose:** Enhanced user selection for managers
+### 10. Division (`peepl.division`)
+**Purpose:** Sub-department organizational units
+
+**Key Fields:**
+- `name` - Division name
+- `department_id` - Parent department
+- `user_assignment_ids` - Users in division
+- `active` - Status flag
+
+**Features:**
+- Department-based filtering
+- Supervisor-level access control
+- Integration with user assignments
+- Dashboard division filtering
+
+### 11. User Extension (`res.users`)
+**Purpose:** Enhanced user selection and role tracking
+
+**Added Fields:**
+- `user_assignment_ids` - User assignments
+- `weekly_report_department_ids` - Computed departments
 
 **Features:**
 - Context-aware name search
 - Department-based filtering
-- Manager-specific user lists
+- Role-specific user lists
 - Integration with user assignments
 
-### 11. Settings Extension (`res.config.settings`)
+### 12. Settings Extension (`res.config.settings`)
 **Purpose:** System configuration
 
 **Added Fields:**
@@ -337,18 +386,38 @@ odoo-bin -u all -d your_database
 1. Navigate to: Weekly Report → Configuration → User Assignments
 2. Click Create
 3. Select user
-4. Select position (must contain "BOD" in name)
+4. Select job position (must contain "BOD" in name)
 5. Department will be auto-cleared for BOD
 6. Save
 
-**For Manager/Staff:**
+**For Manager:**
 1. Ensure user has `hr.employee` record with department
 2. Navigate to: Weekly Report → Configuration → User Assignments
 3. Click Create
 4. Select user
-5. Select position (Manager or Staff)
+5. Select job position (Manager)
 6. Department auto-populates from HR employee
 7. Save
+
+**For Supervisor:**
+1. Ensure user has `hr.employee` record with department
+2. Navigate to: Weekly Report → Configuration → User Assignments
+3. Click Create
+4. Select user
+5. Select job position (Supervisor)
+6. Department auto-populates from HR employee
+7. Select division from filtered list
+8. Save
+
+**For User (Staff):**
+1. Ensure user has `hr.employee` record with department
+2. Navigate to: Weekly Report → Configuration → User Assignments
+3. Click Create
+4. Select user
+5. Select job position (Staff/User)
+6. Department auto-populates from HR employee
+7. Optionally select division
+8. Save
 
 ### 2. Field Template Configuration
 
@@ -357,14 +426,15 @@ odoo-bin -u all -d your_database
 2. Click Create
 3. Fill in:
    - **Name:** Field label (e.g., "Priority Level")
-   - **Field Type:** Select type (e.g., Dropdown)
+   - **Field Type:** Select type (Text or Dropdown)
    - **Department:** Select department (field only visible to this department)
    - **Sequence:** Display order
+   - **Position:** Select anchor field (PIC, Project/Task, Status, Progress, Deadline, Notes)
+   - **Insert:** Choose before or after anchor field
    - **Selection Values:** (for Dropdown) One option per line
-   - **Related Model:** (for Many2one) Model name (e.g., res.partner)
 4. Save
 5. Browser auto-reloads
-6. Field appears in Weekly Report form/list
+6. Field appears in Weekly Report form/list at specified position
 
 **Example - Priority Dropdown:**
 ```
@@ -372,6 +442,8 @@ Name: Priority Level
 Field Type: Dropdown
 Department: IT Department
 Sequence: 10
+Position: Status
+Insert: After
 Selection Values:
 Low
 Medium
@@ -379,13 +451,14 @@ High
 Critical
 ```
 
-**Example - Many2one Field:**
+**Example - Text Field:**
 ```
-Name: Related Contact
-Field Type: Many2one
+Name: Additional Notes
+Field Type: Text
 Department: Sales
 Sequence: 20
-Related Model: res.partner
+Position: Notes
+Insert: Before
 ```
 
 ### 3. Dashboard Configuration
@@ -432,7 +505,14 @@ Related Model: res.partner
 **As Manager:**
 1. Navigate to: Weekly Report → PIC Overview
 2. See statistics for all users in your department
-3. Click "Update" to refresh all statistics
+3. Click any user row to view their weekly reports
+4. Click "Update" to refresh all statistics
+
+**As Supervisor:**
+1. Navigate to: Weekly Report → PIC Overview
+2. See statistics for users in your division
+3. Click any user row to view their weekly reports
+4. Click "Update" to refresh all statistics
 
 **As BOD:**
 1. Navigate to: Weekly Report → PIC Overview
@@ -680,12 +760,26 @@ WR005           | Sales      | 2
 ```
 1. Manager logs in → Sees department reports only
 2. Navigate to Weekly Reports list
-3. Filter by Status/PIC/Date
+3. Filter by Status/PIC/Date/Division
 4. View display_number (sequential per dept)
 5. Click report to view details
 6. Edit if needed (only dept reports)
 7. Check PIC Overview for team stats
-8. Update statistics if needed
+8. Click user row to view specific user reports
+9. Update statistics if needed
+```
+
+### Workflow 2.5: Supervisor Reviewing Division Reports
+```
+1. Supervisor logs in → Sees division reports only
+2. Navigate to Weekly Reports list
+3. Filter by Status/PIC/Date
+4. View display_number (sequential per dept)
+5. Click report to view details
+6. Edit if needed (only division reports)
+7. Check PIC Overview for division stats
+8. Click user row to view specific user reports
+9. Update statistics if needed
 ```
 
 ### Workflow 3: BOD Creating Custom Field
@@ -697,15 +791,17 @@ WR005           | Sales      | 2
 5. Select Type: Dropdown
 6. Select Department: IT
 7. Set Sequence: 10
-8. Enter Selection Values:
+8. Select Position: Status
+9. Select Insert: After
+10. Enter Selection Values:
    Low
    Medium
    High
    Critical
-9. Click Save
-10. Browser auto-reloads
-11. Field appears in IT dept reports
-12. Other departments don't see this field
+11. Click Save
+12. Browser auto-reloads
+13. Field appears after Status field in IT dept reports
+14. Other departments don't see this field
 ```
 
 ### Workflow 4: Auto Overdue Status Update
@@ -729,37 +825,51 @@ WR005           | Sales      | 2
 4. Click settings → Department configuration
 5. Configure field templates per department
 6. Manage user assignments per department
-7. View department-specific statistics
+7. Create and assign divisions
+8. View department-specific statistics
+9. Filter dashboard by department and division
 ```
 
-### Workflow 6: Column Resizing in List Views
+### Workflow 6: Interactive PIC Overview
 ```
-1. User opens any list view
-2. Hover over column borders
-3. Drag to resize columns
-4. Width persists during session
-5. Minimum width enforced (60px)
-6. All rows adjust automatically
+1. User opens PIC Overview
+2. View statistics for accessible users
+3. Click any user row
+4. Automatically navigate to Weekly Reports
+5. Reports filtered by selected user
+6. URL parameters preserved (dept_filter, name_filter)
+7. Scroll horizontally/vertically if needed (especially when zoomed)
+8. Return to PIC Overview to select another user
 ```
 
-### Workflow 5: Department-Based Filtering
+### Workflow 7: Role-Based Filtering
 ```
-Staff (IT Department):
+User/Staff (IT Department):
 - Sees: Own reports only
 - Display Number: 1, 2, 3... (sequential in IT)
 - Custom Fields: IT department fields only
+- PIC Overview: Own statistics only
+
+Supervisor (Sales Dept, Division A):
+- Sees: Division A reports only
+- Display Number: 1, 2, 3... (sequential in Sales)
+- Custom Fields: Sales department fields only
+- Can create reports for Division A members
+- PIC Overview: Division A users only
 
 Manager (Sales Department):
-- Sees: All Sales dept reports
+- Sees: All Sales dept reports (all divisions)
 - Display Number: 1, 2, 3... (sequential in Sales)
 - Custom Fields: Sales department fields only
 - Can create reports for Sales team members
+- PIC Overview: All Sales users
 
 BOD:
-- Sees: All reports (all departments)
+- Sees: All reports (all departments/divisions)
 - Display Number: Actual global number (WR001, WR002...)
 - Custom Fields: All fields from all departments
 - Can create reports for anyone
+- PIC Overview: All users
 ```
 
 ---
@@ -897,20 +1007,25 @@ Layer 4: View Domain (allowed_user_ids)
 
 ## Real-World Scenarios
 
-### Scenario 1: Multi-Department Company
+### Scenario 1: Multi-Department Company with Divisions
 **Setup:**
 - 3 Departments: IT, Sales, HR
-- 1 BOD, 3 Managers (1 per dept), 15 Staff
+- IT has 2 divisions: Development, Support
+- Sales has 2 divisions: Enterprise, SMB
+- 1 BOD, 3 Managers (1 per dept), 2 Supervisors per dept, 15 Staff
 
 **Usage:**
-- IT Manager creates custom field "Bug Severity"
-- Sales Manager creates "Deal Stage" field
-- HR Manager creates "Employee Type" field
+- IT Manager creates custom field "Bug Severity" positioned after Status
+- Sales Manager creates "Deal Stage" field positioned before Notes
+- HR Manager creates "Employee Type" field positioned after PIC
 - Each department sees only their fields
 - BOD sees all fields when creating reports
-- Staff in IT only see IT reports with IT fields
+- Staff in IT Development only see their own reports with IT fields
+- Supervisor in IT Development sees all Development division reports
+- IT Manager sees all IT reports (both divisions)
 - BOD uses department kanban view for overview
-- Column resizing for better data visibility
+- Dashboard filters by department and division
+- PIC Overview rows are clickable to view user reports
 
 ### Scenario 2: Project Tracking
 **Setup:**
@@ -1179,17 +1294,21 @@ def _check_deadline(self):
 
 ## Version History
 
-**v19.0.1.0.5** (Current)
-- Dynamic field template system
+**v19.0.1.0.6** (Current)
+- Dynamic field template system with flexible positioning
 - Department-based field visibility
 - Auto-refresh on template changes
 - Dual numbering system (global + department)
+- Four-tier role system (User, Supervisor, Manager, All Access)
+- Division management and filtering
+- Supervisor division-level access control
 - Enhanced access control using hr.employee
-- PIC Overview with real-time statistics
-- Interactive dashboard
-- User assignment management
+- Interactive PIC Overview with clickable rows
+- URL parameter preservation across navigation
+- Scrollable PIC Overview table
+- Interactive dashboard with division filtering
+- User assignment management with division support
 - BOD department kanban interface
-- Column resizing in list views
 - Smart menu hiding system
 - Context-aware field filtering
 - HTML notes editor
