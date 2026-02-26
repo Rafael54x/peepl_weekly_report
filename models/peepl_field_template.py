@@ -19,6 +19,7 @@ class PeeplFieldTemplate(models.Model):
     field_type = fields.Selection([
         ('char', 'Text'),
         ('selection', 'Dropdown'),
+        ('date', 'Date'),
     ], string='Field Type', default='char', required=True)
     selection_values = fields.Text('Selection Values', help='One per line for dropdown')
     relation_model = fields.Char('Related Model', help='e.g. res.partner')
