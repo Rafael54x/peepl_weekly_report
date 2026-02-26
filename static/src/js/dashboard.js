@@ -116,18 +116,19 @@ export class PeeplDashboard extends Component {
             ["user_id", "job_position", "total_tasks", "completed", "in_progress", "not_started", "delayed", "plan", "overdue"]
         );
         
-        // Load all departments (filtered by record rules)
-        this.state.departments = await this.orm.searchRead(
-            "hr.department",
-            [["active", "=", true]],
-            ["name"]
-        );
-        
         // Load all assignments with division (filtered by record rules)
         const assignments = await this.orm.searchRead(
             "peepl.user.assignment",
             [["active", "=", true]],
             ["user_id", "department_id", "division_id"]
+        );
+        
+        // Get unique departments from assignments
+        const deptIds = [...new Set(assignments.map(a => a.department_id[0]).filter(id => id))];
+        this.state.departments = await this.orm.searchRead(
+            "hr.department",
+            [["id", "in", deptIds]],
+            ["name"]
         );
         
         this.state.allAssignments = assignments;
@@ -318,8 +319,9 @@ export class PeeplDashboard extends Component {
     }
 
     get uniqueDepartments() {
-        // Return all departments from state.departments, not just from picData
-        return this.state.departments.map(d => d.name).sort();
+        // Get departments from assignments (already filtered by record rules)
+        const deptNames = [...new Set(this.state.allAssignments?.map(a => a.department_id?.[1]).filter(n => n))];
+        return deptNames.sort();
     }
 
     get uniqueRoles() {
