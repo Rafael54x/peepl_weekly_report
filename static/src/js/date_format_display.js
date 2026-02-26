@@ -1,50 +1,23 @@
 /** @odoo-module **/
 
+const PEEPL_MODELS = ['peepl.weekly.report', 'peepl.pic.overview', 'peepl.user.assignment', 'peepl.field.template', 'peepl.weekly.report.bod', 'peepl.division'];
+
+function isPeeplListView(element) {
+    const listView = element.closest('.o_list_view');
+    const kanbanView = element.closest('.o_kanban_view');
+    const view = listView || kanbanView;
+    if (!view) return false;
+    const modelAttr = view.getAttribute('data-resModel') || view.querySelector('[data-resModel]')?.getAttribute('data-resModel');
+    return modelAttr && PEEPL_MODELS.includes(modelAttr);
+}
+
 // Format all date inputs to dd-mm-yyyy display
 function formatDateInputs() {
     // Format all date field containers
     const dateFields = document.querySelectorAll('.o_field_date');
     
     dateFields.forEach(field => {
-        // Format input fields
-        const input = field.querySelector('input');
-        if (input && input.value && !input.dataset.formatted) {
-            const date = new Date(input.value);
-            if (!isNaN(date.getTime())) {
-                const day = String(date.getDate()).padStart(2, '0');
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const year = date.getFullYear();
-                const formatted = `${day}-${month}-${year}`;
-                
-                input.dataset.formatted = 'true';
-                input.dataset.realValue = input.value;
-                input.type = 'text';
-                input.value = formatted;
-                
-                input.addEventListener('focus', function(e) {
-                    e.stopPropagation();
-                    this.type = 'date';
-                    this.value = this.dataset.realValue || '';
-                }, true);
-                
-                input.addEventListener('blur', function() {
-                    if (this.value) {
-                        this.dataset.realValue = this.value;
-                        const newDate = new Date(this.value);
-                        if (!isNaN(newDate.getTime())) {
-                            const day = String(newDate.getDate()).padStart(2, '0');
-                            const month = String(newDate.getMonth() + 1).padStart(2, '0');
-                            const year = newDate.getFullYear();
-                            this.type = 'text';
-                            this.value = `${day}-${month}-${year}`;
-                        }
-                    } else {
-                        this.type = 'date';
-                        this.dataset.formatted = '';
-                    }
-                });
-            }
-        }
+        if (!isPeeplListView(field)) return;
         
         // Format readonly display text - always check
         const textNodes = [];
