@@ -341,7 +341,7 @@
                                             <tbody>
                                                 <t t-foreach="state.deptDetailData.reports" t-as="report" t-key="report.id">
                                                     <tr>
-                                                        <td><t t-esc="report.name"/></td>
+                                                        <td><t t-esc="report.dept_number"/></td>
                                                         <td><t t-esc="report.pic_id[1]"/></td>
                                                         <td class="project-task-cell"><t t-esc="report.project_task"/></td>
                                                         <td><t t-esc="report.deadline || '-'"/></td>

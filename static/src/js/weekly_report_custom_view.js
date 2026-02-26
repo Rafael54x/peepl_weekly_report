@@ -419,7 +419,7 @@ class WeeklyReportCustomView extends Component {
             );
             
             records.forEach((record, index) => {
-                record.display_number = index + 1;
+                record.display_number = (this.state.currentPage - 1) * this.state.recordsPerPage + index + 1;
             });
             
             // Get ALL names from department for dropdown (not just filtered)

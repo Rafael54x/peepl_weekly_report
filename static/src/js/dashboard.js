@@ -400,12 +400,15 @@ export class PeeplDashboard extends Component {
             "search_read",
             [[["pic_id", "in", userIds]]],
             {
-                fields: ["name", "pic_id", "project_task", "deadline", "status", "progress", "notes"]
+                fields: ["name", "pic_id", "project_task", "deadline", "status", "progress", "notes"],
+                order: "name asc"
             }
         );
         
-        // Process notes with file rendering
-        reports.forEach(report => {
+        // Process notes with file rendering and add sequential number per department
+        reports.forEach((report, index) => {
+            report.dept_number = index + 1;
+            
             if (report.notes) {
                 report.notes_html = report.notes;
             } else {
