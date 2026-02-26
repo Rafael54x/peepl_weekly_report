@@ -43,11 +43,6 @@
                     <div class="dashboard-view">
                         <h2>Dashboard Overview</h2>
                         
-                        <!-- Department Info for Manager -->
-                        <div class="alert alert-info" t-if="state.departments.length === 1">
-                            <strong>Department: <t t-esc="state.departments[0].name"/></strong> - You are viewing your team's data
-                        </div>
-                        
                         <!-- PIC Overview Table -->
                         <div class="card mb-4">
                             <div class="card-header">PIC Overview</div>
@@ -60,18 +55,22 @@
                                                placeholder="Search by name..." 
                                                t-on-input="onSearchChange"
                                                t-model="state.searchQuery"/>
-                                        <select class="form-select" t-model="state.filterDepartment" t-on-change="onDepartmentFilter">
-                                            <option value="">All Departments</option>
-                                            <t t-foreach="uniqueDepartments" t-as="dept" t-key="dept">
-                                                <option t-att-value="dept"><t t-esc="dept"/></option>
-                                            </t>
-                                        </select>
-                                        <select class="form-select" t-model="state.filterRole" t-on-change="onRoleFilter">
-                                            <option value="">All Divisions</option>
-                                            <t t-foreach="uniqueRoles" t-as="role" t-key="role">
-                                                <option t-att-value="role"><t t-esc="role"/></option>
-                                            </t>
-                                        </select>
+                                        <t t-if="state.departments.length > 1">
+                                            <select class="form-select" t-model="state.filterDepartment" t-on-change="onDepartmentFilter">
+                                                <option value="">All Departments</option>
+                                                <t t-foreach="uniqueDepartments" t-as="dept" t-key="dept">
+                                                    <option t-att-value="dept"><t t-esc="dept"/></option>
+                                                </t>
+                                            </select>
+                                        </t>
+                                        <t t-if="uniqueRoles.length > 1">
+                                            <select class="form-select" t-model="state.filterRole" t-on-change="onRoleFilter">
+                                                <option value="">All Divisions</option>
+                                                <t t-foreach="uniqueRoles" t-as="role" t-key="role">
+                                                    <option t-att-value="role"><t t-esc="role"/></option>
+                                                </t>
+                                            </select>
+                                        </t>
                                         <button class="btn btn-sm btn-danger" t-on-click="resetFilters" t-if="hasActiveFilters">
                                             <i class="fa fa-times"></i> Reset Filters
                                         </button>

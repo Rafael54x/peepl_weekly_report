@@ -60,25 +60,7 @@ export class PeeplDashboard extends Component {
     }
 
     async loadData() {
-        // Simplified approach - load all data first, then filter in frontend
         await this.loadAllData();
-        
-        // Check if user has BOD access by trying to load all departments
-        try {
-            const allDepts = await this.orm.searchRead(
-                "hr.department",
-                [["active", "=", true]],
-                ["name"]
-            );
-            
-            // If we can load all departments, user is BOD - keep all data
-            if (allDepts.length > this.state.departments.length) {
-                this.state.departments = allDepts;
-                this.setupCommonData(this.state.allAssignments);
-            }
-        } catch (error) {
-            // If error, user is Manager/Staff - data already filtered by record rules
-        }
     }
 
     async loadManagerData(departmentId) {
