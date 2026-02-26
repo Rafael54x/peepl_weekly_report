@@ -357,9 +357,8 @@
                                                             </div>
                                                         </td>
                                                         <td>
-                                                            <div class="notes-cell">
-                                                                <t t-if="report.notes_text and report.notes_text.trim()" t-esc="report.notes_text"/>
-                                                                <span t-if="!report.notes_text or !report.notes_text.trim()" class="text-muted">-</span>
+                                                            <div class="notes-cell" t-att-data-notes="report.notes_html">
+                                                                <span class="text-muted">-</span>
                                                             </div>
                                                         </td>
                                                     </tr>

@@ -402,14 +402,12 @@ export class PeeplDashboard extends Component {
             }
         );
         
-        // Process notes and format deadline
+        // Process notes with file rendering
         reports.forEach(report => {
             if (report.notes) {
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = report.notes;
-                report.notes_text = tempDiv.textContent || tempDiv.innerText || '';
+                report.notes_html = report.notes;
             } else {
-                report.notes_text = '';
+                report.notes_html = '';
             }
             
             // Format deadline to dd-mm-yyyy
@@ -429,6 +427,67 @@ export class PeeplDashboard extends Component {
             reports: reports,
             users: assignments
         };
+        
+        // Render notes after DOM update
+        setTimeout(() => this.renderNotesInDetails(), 100);
+    }
+
+    renderNotesInDetails() {
+        const notesCells = document.querySelectorAll('.notes-cell');
+        notesCells.forEach(container => {
+            const notes = container.getAttribute('data-notes');
+            if (notes && notes !== 'false') {
+                const textarea = document.createElement('textarea');
+                textarea.innerHTML = notes;
+                const decoded = textarea.value;
+                container.innerHTML = decoded;
+                
+                const fileBoxes = container.querySelectorAll('[data-embedded="file"]');
+                fileBoxes.forEach(fileBox => {
+                    try {
+                        const propsAttr = fileBox.getAttribute('data-embedded-props');
+                        if (propsAttr) {
+                            const props = JSON.parse(propsAttr.replace(/&quot;/g, '"').replace(/&amp;/g, '&'));
+                            const fileData = props.fileData;
+                            
+                            if (fileData) {
+                                const downloadUrl = fileData.url || `/web/content/${fileData.id}?access_token=${fileData.access_token}&filename=${encodeURIComponent(fileData.filename)}&download=true`;
+                                const previewUrl = downloadUrl.replace('&download=true', '');
+                                
+                                const fileLink = document.createElement('a');
+                                fileLink.href = previewUrl;
+                                fileLink.className = 'badge bg-primary text-white text-decoration-none';
+                                fileLink.innerHTML = `<i class="fa fa-file-${fileData.extension === 'pdf' ? 'pdf' : 'o'}"></i> ${fileData.filename}`;
+                                fileLink.style.cssText = 'padding: 5px 10px; display: inline-block; margin: 2px;';
+                                
+                                fileLink.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    
+                                    const modal = document.createElement('div');
+                                    modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;';
+                                    modal.innerHTML = `
+                                        <div style="width:90%;height:90%;background:white;position:relative;">
+                                            <button onclick="this.closest('div[style*=fixed]').remove()" style="position:absolute;top:10px;right:10px;z-index:10000;padding:5px 10px;background:red;color:white;border:none;cursor:pointer;">Close</button>
+                                            <iframe src="${previewUrl}" style="width:100%;height:100%;border:none;"></iframe>
+                                        </div>
+                                    `;
+                                    document.body.appendChild(modal);
+                                    modal.addEventListener('click', (e) => {
+                                        if (e.target === modal) modal.remove();
+                                    });
+                                });
+                                
+                                fileBox.innerHTML = '';
+                                fileBox.appendChild(fileLink);
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error parsing file data:', e);
+                    }
+                });
+            }
+        });
     }
 
     closeDeptDetails() {
