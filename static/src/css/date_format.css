@@ -1,0 +1,4 @@
+/* Override date field display format to dd-mm-yyyy */
+.o_field_date input {
+    font-family: inherit;
+}

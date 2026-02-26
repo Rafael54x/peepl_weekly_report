@@ -180,7 +180,13 @@ class WeeklyReportCustomView extends Component {
                     
                     const recordId = tr.getAttribute('data-id')?.replace('datapoint_', '');
                     const record = this.state.records.find(r => r.id == recordId);
-                    const value = record?.[field.name] || '';
+                    let value = record?.[field.name] || '';
+                    
+                    // Format date fields
+                    if (field.type === 'date' && value) {
+                        value = this.formatDate(value);
+                    }
+                    
                     td.textContent = value;
                     td.setAttribute('data-tooltip', value);
                     
@@ -672,7 +678,10 @@ class WeeklyReportCustomView extends Component {
     formatDate(dateStr) {
         if (!dateStr) return "";
         const date = new Date(dateStr);
-        return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
     }
     
     getStatusBadge(status) {

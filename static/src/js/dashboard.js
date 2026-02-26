@@ -402,15 +402,25 @@ export class PeeplDashboard extends Component {
             }
         );
         
-        // Process notes to extract text content
+        // Process notes and format deadline
         reports.forEach(report => {
             if (report.notes) {
-                // Create temporary div to parse HTML and extract text
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = report.notes;
                 report.notes_text = tempDiv.textContent || tempDiv.innerText || '';
             } else {
                 report.notes_text = '';
+            }
+            
+            // Format deadline to dd-mm-yyyy
+            if (report.deadline) {
+                const date = new Date(report.deadline);
+                if (!isNaN(date.getTime())) {
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const year = date.getFullYear();
+                    report.deadline = `${day}-${month}-${year}`;
+                }
             }
         });
         

@@ -44,6 +44,7 @@ Key Features:
     'images': ['static/description/icon.png'],
     'assets': {
         'web.assets_backend': [
+            'peepl_weekly_report/static/src/js/date_format_display.js',
             'peepl_weekly_report/static/src/js/hide_staff_menus.js',
             'peepl_weekly_report/static/src/js/render_notes.js',
             'peepl_weekly_report/static/src/js/column_resize_new.js',
@@ -60,6 +61,7 @@ Key Features:
             'peepl_weekly_report/static/src/js/hide_save_button.js',
             'peepl_weekly_report/static/src/js/department_create_redirect.js',
             'peepl_weekly_report/static/src/css/dashboard.css',
+            'peepl_weekly_report/static/src/css/date_format.css',
             'peepl_weekly_report/static/src/css/column_resize_new.css',
             'peepl_weekly_report/static/src/css/list_view.css',
             'peepl_weekly_report/static/src/css/kanban_view.css',
